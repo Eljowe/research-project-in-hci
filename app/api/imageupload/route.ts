@@ -3,6 +3,7 @@ import { writeFile } from "fs/promises";
 import base64 from "base64-js";
 
 const baseUrl = "http://localhost:1234/v1";
+const saveImage = false;
 
 export async function GET(request: Request) {
   return new Response(JSON.stringify({ body: "ok" }), {
@@ -31,12 +32,17 @@ export const POST = async (req: Request, res: Response) => {
   `;
   try {
     const generatedResponse = await postPromptLLM(prompt as string, file as File);
-
-    /*const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(process.cwd(), "public/uploads/" + filename), buffer);
-    */
+    if (saveImage) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      await writeFile(path.join(process.cwd(), "public/uploads/" + filename), buffer);
+    }
     return new Response(
-      JSON.stringify({ Message: "Success", filename: filename, generatedResponse: generatedResponse }),
+      JSON.stringify({
+        Message: "Success",
+        filename: filename,
+        generatedResponse: generatedResponse,
+        saveImage: saveImage,
+      }),
       { status: 201 }
     );
   } catch (error) {

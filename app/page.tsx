@@ -9,10 +9,17 @@ export default function Home() {
   const [prompt, setPrompt] = useState<string | null>(null);
   const [generatedOutput, setGeneratedOutput] = useState<string | null>(null);
   const [modelOnline, setModelOnline] = useState<boolean>(false);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       setFile(event.target.files[0]);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageSrc(reader.result as string);
+      };
+
+      reader.readAsDataURL(event.target.files[0]);
     }
   };
 
@@ -46,7 +53,8 @@ export default function Home() {
         data = await uploadImage(file, prompt);
       }
       console.log(data);
-      setGeneratedOutput(data);
+      setGeneratedOutput(data.generatedOutput);
+      console.log(data.generatedOutput);
     }
     setLoading(false);
   };
@@ -65,7 +73,9 @@ export default function Home() {
       throw new Error("Image upload failed");
     } else {
       const data = await response.json();
-      setUploadedImage(data.filename);
+      if (data.saveImage) {
+        setUploadedImage(data.filename);
+      }
       return data;
     }
   }
@@ -96,7 +106,7 @@ export default function Home() {
               `}
               className="w-[100%] my-2 bg-inherit rounded-md border p-2"
             />
-            {loading == true || !file ? (
+            {loading == true || !file || !modelOnline ? (
               <input
                 type="submit"
                 value="Submit"
@@ -114,6 +124,7 @@ export default function Home() {
         </div>
         <div className="min-w-[350px] w-[100%] max-w-[700px] h-min max-h-[800px] space-y-2 flex flex-col m-2 border p-4">
           <p>Selected image:</p>
+          {imageSrc && !uploadedImage ? <img src={imageSrc} alt="Selected image" /> : null}
           {uploadedImage && (
             <img
               alt="UI screenshot"
@@ -124,6 +135,7 @@ export default function Home() {
         </div>
         <div className="min-w-[350px] max-w-[700px] max-h-[400px] w-[100%] m-2 flex border p-4">
           <p>Generated output:</p>
+          {generatedOutput && <p>{generatedOutput}</p>}
         </div>
       </div>
     </main>
