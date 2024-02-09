@@ -1,12 +1,12 @@
 import path from "path";
 import { writeFile } from "fs/promises";
-import base64 from "base64-js";
 
 const BASE_URL = "http://localhost:1234/v1";
 const SAVE_IMAGE = false;
 const TEST_PROMPT = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format. Try to provide full HTML code of the UI in the image.`;
 
 export async function GET(request: Request) {
+  // This is a test route to check if the API is reachable
   return new Response(JSON.stringify({ body: "ok" }), {
     status: 200,
     statusText: "Hello from route imageupload/GET",
@@ -14,6 +14,7 @@ export async function GET(request: Request) {
 }
 
 export const POST = async (req: Request, res: Response) => {
+  // This is the main route to handle the image upload and prompt submission
   const formData = await req.formData();
 
   const file = formData.get("file");
@@ -28,10 +29,13 @@ export const POST = async (req: Request, res: Response) => {
 
   try {
     const generatedResponse = await postPromptLLM(prompt as string, file as File);
+
+    // If there is need to save images in the future
     if (SAVE_IMAGE) {
       const buffer = Buffer.from(await file.arrayBuffer());
       await writeFile(path.join(process.cwd(), "public/uploads/" + filename), buffer);
     }
+
     if (!generatedResponse) {
       return new Response(
         JSON.stringify({
@@ -40,9 +44,10 @@ export const POST = async (req: Request, res: Response) => {
           generatedResponse: null,
           SAVE_IMAGE: null,
         }),
-        { status: 500 }
+        { status: 500 },
       );
     }
+
     return new Response(
       JSON.stringify({
         Message: "Success",
@@ -50,7 +55,7 @@ export const POST = async (req: Request, res: Response) => {
         generatedResponse: generatedResponse,
         SAVE_IMAGE: SAVE_IMAGE,
       }),
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     return new Response(JSON.stringify({ Message: "Failed" }), { status: 500 });
@@ -59,9 +64,12 @@ export const POST = async (req: Request, res: Response) => {
 
 async function postPromptLLM(prompt: string, file: File) {
   try {
+    //Convert file to base64 because LLM accepts base64 encoded images
     const buffer = Buffer.from(await file.arrayBuffer());
     const base64Data = buffer.toString("base64");
     const response = await fetch(`${BASE_URL}/chat/completions`, {
+      // API payload
+      // Will need some changes to make it work with GPT4 API
       method: "POST",
       headers: {
         Authorization: "Bearer not-needed",

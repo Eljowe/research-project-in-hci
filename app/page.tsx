@@ -13,20 +13,8 @@ export default function Home() {
   const [temporaryImageFile, setTemporaryImageFile] = useState<string | null>(null);
   const [errorAlert, setErrorAlert] = useState<boolean>(false);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      setErrorAlert(false);
-      setFile(event.target.files[0]);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setTemporaryImageFile(reader.result as string);
-      };
-
-      reader.readAsDataURL(event.target.files[0]);
-    }
-  };
-
   useEffect(() => {
+    // Check if local LLM model is online
     const checkModel = async () => {
       try {
         const response = await fetch("http://localhost:1234/v1/models");
@@ -39,6 +27,19 @@ export default function Home() {
     };
     checkModel();
   }, []);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setErrorAlert(false);
+      setFile(event.target.files[0]);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setTemporaryImageFile(reader.result as string);
+      };
+
+      reader.readAsDataURL(event.target.files[0]);
+    }
+  };
 
   const handlePromptChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPrompt(event.target.value);
@@ -87,9 +88,9 @@ export default function Home() {
   }
 
   return (
-    <main className="w-[100%] justify-center flex-col flex min-h-screen text-black bg-[#fffafa] py-2 px-4">
-      <div className="w-[100%] h-min flex justify-center items-center flex-col">
-        <div className="min-w-[350px] w-[100%] max-w-[700px] h-min max-h-[800px] space-y-2 flex flex-col m-2 border p-4">
+    <main className="flex min-h-screen w-[100%] flex-col justify-center bg-[#fffafa] px-4 py-2 text-black">
+      <div className="flex h-min w-[100%] flex-col items-center justify-center">
+        <div className="m-2 flex h-min max-h-[800px] w-[100%] min-w-[350px] max-w-[700px] flex-col space-y-2 border p-4">
           {modelOnlineStatus ? (
             <h1 className="text-green-500">Local model is online</h1>
           ) : (
@@ -98,7 +99,7 @@ export default function Home() {
           <form onSubmit={handleSubmit}>
             <label className="mb-2 inline-block text-neutral-900 ">Input image</label>
             <input
-              className="relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-300 cursor-pointer focus:border-primary focus focus:shadow-te-primary focus:outline-none "
+              className="file focus:border-primary focus focus:shadow-te-primary relative m-0 block w-full min-w-0 flex-auto cursor-pointer rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-300 focus:outline-none "
               type="file"
               id="formFile"
               accept="image/jpeg, image/png, image/jpg"
@@ -108,32 +109,32 @@ export default function Home() {
               onChange={handlePromptChange}
               rows={10}
               placeholder={DEFAULT_PROMPT}
-              className="w-[100%] my-2 bg-inherit rounded-md border p-2"
+              className="my-2 w-[100%] rounded-md border bg-inherit p-2"
             />
             {loading == true || !file ? (
               <input
                 type="submit"
                 value="Submit"
                 disabled
-                className="cursor-not-allowed bg-neutral-300 rounded p-2 border"
+                className="cursor-not-allowed rounded border bg-neutral-300 p-2"
               />
             ) : (
               <input
                 type="submit"
                 value="Submit"
-                className="cursor-pointer bg-blue-500 text-white hover:bg-blue-400 rounded p-2 border"
+                className="cursor-pointer rounded border bg-blue-500 p-2 text-white hover:bg-blue-400"
               />
             )}
           </form>
           {errorAlert && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <div className="relative rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700" role="alert">
               <strong className="font-bold">Error!</strong>
               <span className="block sm:inline"> Something went wrong while processing the image.</span>
             </div>
           )}
           {loading && (
             <div
-              className="bg-blue-100 border animate-pulse border-blue-400 text-blue-700 px-4 py-3 rounded relative"
+              className="relative animate-pulse rounded border border-blue-400 bg-blue-100 px-4 py-3 text-blue-700"
               role="alert"
             >
               <strong className="font-bold">Loading</strong>
@@ -141,24 +142,24 @@ export default function Home() {
             </div>
           )}
         </div>
-        <div className="min-w-[350px] w-[100%] max-w-[700px] h-min space-y-2 flex flex-col m-2 border p-4">
+        <div className="m-2 flex h-min w-[100%] min-w-[350px] max-w-[700px] flex-col space-y-2 border p-4">
           <p>Selected image:</p>
           {temporaryImageFile && !uploadedImagePath ? (
-            <img src={temporaryImageFile} className="object-contain h-[60%] max-h-[400px]" alt="Selected image" />
+            <img src={temporaryImageFile} className="h-[60%] max-h-[400px] object-contain" alt="Selected image" />
           ) : null}
           {uploadedImagePath && (
             <img
               alt="UI screenshot"
-              className="object-contain h-[60%] max-h-[400px]"
+              className="h-[60%] max-h-[400px] object-contain"
               src={`/uploads/${uploadedImagePath}`}
             />
           )}
         </div>
-        <div className="min-w-[350px] max-w-[700px] flex-col w-[100%] m-2 flex border p-4">
+        <div className="m-2 flex w-[100%] min-w-[350px] max-w-[700px] flex-col border p-4">
           <p>Generated text output:</p>
           {generatedOutput && <p className="mt-4 text-neutral-700">{generatedOutput}</p>}
         </div>
-        <div className="min-w-[350px] max-w-[700px] flex-col w-[100%] m-2 flex border p-4">
+        <div className="m-2 flex w-[100%] min-w-[350px] max-w-[700px] flex-col border p-4">
           <p>Generated layout:</p>
           {generatedOutput && <div dangerouslySetInnerHTML={{ __html: generatedOutput }} />}
         </div>
