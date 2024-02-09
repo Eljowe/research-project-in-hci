@@ -2,7 +2,9 @@ Tool to test UI detection with LLM APIs. Built with Next.JS.
 
 ## Getting Started
 
-First, run the development server:
+After cloning the project, remember to run `npm install`
+
+Run the development server:
 
 ```bash
 npm run dev

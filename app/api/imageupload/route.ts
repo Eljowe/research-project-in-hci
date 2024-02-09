@@ -79,11 +79,6 @@ async function postPromptLLM(prompt: string, file: File) {
         model: "local-model",
         messages: [
           {
-            role: "system",
-            content:
-              "You are an automating assistant. You are given a screenshot of an UI and you need to detect UI elements it contains. Always respond in HTML.",
-          },
-          {
             role: "user",
             content: [
               { type: "text", text: prompt },
