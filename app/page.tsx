@@ -53,8 +53,8 @@ export default function Home() {
         data = await uploadImage(file, prompt);
       }
       console.log(data);
-      setGeneratedOutput(data.generatedOutput);
-      console.log(data.generatedOutput);
+      setGeneratedOutput(data.generatedResponse);
+      console.log(data.generatedResponse);
     }
     setLoading(false);
   };
@@ -82,13 +82,13 @@ export default function Home() {
 
   return (
     <main className="w-[100%] justify-center flex-wrap  flex min-h-screen text-black bg-[#fffafa] p-6">
-      <div className="w-[100%] h-min flex border justify-center flex-wrap">
+      <div className="w-[100%] h-min flex justify-center flex-wrap">
         {modelOnline ? (
           <h1 className="text-green-500">Model is online</h1>
         ) : (
           <h1 className="text-red-500">Model is offline</h1>
         )}
-        {loading && <h1 className="text-blue-500 text-2xl absolute top-1/2 left-1/2 animate-pulse">Loading...</h1>}
+        {loading && <h1 className="text-blue-500 text-2xl sticky top-1/2 left-1/2 animate-pulse">Loading...</h1>}
         <div className="min-w-[350px] w-[100%] max-w-[700px] h-min max-h-[800px] space-y-2 flex flex-col m-2 border p-4">
           <form onSubmit={handleSubmit}>
             <label className="mb-2 inline-block text-neutral-900 ">Input image</label>
@@ -122,9 +122,11 @@ export default function Home() {
             )}
           </form>
         </div>
-        <div className="min-w-[350px] w-[100%] max-w-[700px] h-min max-h-[800px] space-y-2 flex flex-col m-2 border p-4">
+        <div className="min-w-[350px] w-[100%] max-w-[700px] h-min space-y-2 flex flex-col m-2 border p-4">
           <p>Selected image:</p>
-          {imageSrc && !uploadedImage ? <img src={imageSrc} alt="Selected image" /> : null}
+          {imageSrc && !uploadedImage ? (
+            <img src={imageSrc} className="object-contain h-[60%] max-h-[400px]" alt="Selected image" />
+          ) : null}
           {uploadedImage && (
             <img
               alt="UI screenshot"
@@ -133,9 +135,9 @@ export default function Home() {
             />
           )}
         </div>
-        <div className="min-w-[350px] max-w-[700px] max-h-[400px] w-[100%] m-2 flex border p-4">
+        <div className="min-w-[350px] max-w-[700px] flex-col w-[100%] m-2 flex border p-4">
           <p>Generated output:</p>
-          {generatedOutput && <p>{generatedOutput}</p>}
+          {generatedOutput && <p className="mt-4 text-neutral-700">{generatedOutput}</p>}
         </div>
       </div>
     </main>
