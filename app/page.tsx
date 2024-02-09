@@ -11,9 +11,11 @@ export default function Home() {
   const [generatedOutput, setGeneratedOutput] = useState<string | null>(null);
   const [modelOnlineStatus, setModelOnlineStatus] = useState<boolean>(false);
   const [temporaryImageFile, setTemporaryImageFile] = useState<string | null>(null);
+  const [errorAlert, setErrorAlert] = useState<boolean>(false);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
+      setErrorAlert(false);
       setFile(event.target.files[0]);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -44,6 +46,7 @@ export default function Home() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setErrorAlert(false);
     setLoading(true);
     if (file) {
       var data = null;
@@ -52,7 +55,9 @@ export default function Home() {
       } else {
         data = await uploadImage(file, prompt);
       }
-      setGeneratedOutput(data.generatedResponse);
+      if (data) {
+        setGeneratedOutput(data.generatedResponse);
+      }
     }
     setLoading(false);
   };
@@ -61,32 +66,34 @@ export default function Home() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("prompt", prompt);
-
-    const response = await fetch("/api/imageupload", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error("Image upload failed");
-    } else {
+    try {
+      const response = await fetch("/api/imageupload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        setErrorAlert(true);
+        setLoading(false);
+        return;
+      }
       const data = await response.json();
       if (data.saveImage) {
         setUploadedImagePath(data.filename);
       }
       return data;
+    } catch (error) {
+      console.error("Error occured while uploading image: ", error);
     }
   }
 
   return (
-    <main className="w-[100%] justify-center flex-col flex min-h-screen text-black bg-[#fffafa] p-6">
+    <main className="w-[100%] justify-center flex-col flex min-h-screen text-black bg-[#fffafa] py-2 px-4">
       <div className="w-[100%] h-min flex justify-center items-center flex-col">
-        {loading && <h1 className="text-blue-500 text-2xl sticky top-1/2 left-1/2 animate-pulse">Loading...</h1>}
         <div className="min-w-[350px] w-[100%] max-w-[700px] h-min max-h-[800px] space-y-2 flex flex-col m-2 border p-4">
           {modelOnlineStatus ? (
-            <h1 className="text-green-500">Model is online</h1>
+            <h1 className="text-green-500">Local model is online</h1>
           ) : (
-            <h1 className="text-red-500">Model is offline</h1>
+            <h1 className="text-red-500">Local model is offline</h1>
           )}
           <form onSubmit={handleSubmit}>
             <label className="mb-2 inline-block text-neutral-900 ">Input image</label>
@@ -103,21 +110,36 @@ export default function Home() {
               placeholder={DEFAULT_PROMPT}
               className="w-[100%] my-2 bg-inherit rounded-md border p-2"
             />
-            {loading == true || !file || !modelOnlineStatus ? (
+            {loading == true || !file ? (
               <input
                 type="submit"
                 value="Submit"
                 disabled
-                className="cursor-not-allowed bg-neutral-300 mt-2 rounded p-2 border"
+                className="cursor-not-allowed bg-neutral-300 rounded p-2 border"
               />
             ) : (
               <input
                 type="submit"
                 value="Submit"
-                className="cursor-pointer bg-blue-500 text-white hover:bg-blue-400 mt-2 rounded p-2 border"
+                className="cursor-pointer bg-blue-500 text-white hover:bg-blue-400 rounded p-2 border"
               />
             )}
           </form>
+          {errorAlert && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <strong className="font-bold">Error!</strong>
+              <span className="block sm:inline"> Something went wrong while processing the image.</span>
+            </div>
+          )}
+          {loading && (
+            <div
+              className="bg-blue-100 border animate-pulse border-blue-400 text-blue-700 px-4 py-3 rounded relative"
+              role="alert"
+            >
+              <strong className="font-bold">Loading</strong>
+              <span className="block sm:inline"> Waiting for response from api.</span>
+            </div>
+          )}
         </div>
         <div className="min-w-[350px] w-[100%] max-w-[700px] h-min space-y-2 flex flex-col m-2 border p-4">
           <p>Selected image:</p>

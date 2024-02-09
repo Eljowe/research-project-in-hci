@@ -20,6 +20,10 @@ Frontend code is located at `app/page.tsx`.
 
 Backend is located at `app/api/imageupload/route.ts` and can be called at route `/api/imageupload`
 
-## Using LLM API
+## Using this tool
+
+The workflow is following
+
+## LLM API configuration
 
 Currently, this tool has been tested with only local LLMs running at `localhost:1234`. The app should work with replacing the local API url with, for example, GPT-4 vision API, as the API-calls remain the same.

@@ -4,6 +4,7 @@ import base64 from "base64-js";
 
 const BASE_URL = "http://localhost:1234/v1";
 const SAVE_IMAGE = false;
+const TEST_PROMPT = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format. Try to provide full HTML code of the UI in the image.`;
 
 export async function GET(request: Request) {
   return new Response(JSON.stringify({ body: "ok" }), {
@@ -25,12 +26,22 @@ export const POST = async (req: Request, res: Response) => {
 
   const filename = Date.now() + file.name.replaceAll(" ", "_");
 
-  const testPrompt = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format. Try to provide full HTML code of the UI in the image.`;
   try {
     const generatedResponse = await postPromptLLM(prompt as string, file as File);
     if (SAVE_IMAGE) {
       const buffer = Buffer.from(await file.arrayBuffer());
       await writeFile(path.join(process.cwd(), "public/uploads/" + filename), buffer);
+    }
+    if (!generatedResponse) {
+      return new Response(
+        JSON.stringify({
+          Message: "Failed",
+          filename: null,
+          generatedResponse: null,
+          SAVE_IMAGE: null,
+        }),
+        { status: 500 }
+      );
     }
     return new Response(
       JSON.stringify({
@@ -42,7 +53,6 @@ export const POST = async (req: Request, res: Response) => {
       { status: 201 }
     );
   } catch (error) {
-    console.log("Error occured ", error);
     return new Response(JSON.stringify({ Message: "Failed" }), { status: 500 });
   }
 };
@@ -87,8 +97,7 @@ async function postPromptLLM(prompt: string, file: File) {
 
     const data = await response.json();
     return data.choices[0].message.content;
-    // Add your logic here, for example, sending the base64Data to the server
   } catch (error) {
-    console.error(error);
+    console.error("Error occured while posting prompt to LLM: ");
   }
 }
