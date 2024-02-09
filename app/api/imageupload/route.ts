@@ -25,10 +25,7 @@ export const POST = async (req: Request, res: Response) => {
 
   const filename = Date.now() + file.name.replaceAll(" ", "_");
 
-  const testPrompt = `
-  Identify and describe all the elements present in the given UI screenshot. 
-  Please provide details about buttons, text fields, images, and any other visible components.
-  `;
+  const testPrompt = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format. Try to provide full HTML code of the UI in the image.`;
   try {
     const generatedResponse = await postPromptLLM(prompt as string, file as File);
     if (saveImage) {

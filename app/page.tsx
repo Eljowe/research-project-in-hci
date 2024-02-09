@@ -46,7 +46,7 @@ export default function Home() {
     if (file) {
       var data = null;
       if (!prompt) {
-        const defaultPrompt = `Identify and describe all the elements present in the given UI screenshot. Please provide details about buttons, text fields, images, and any other visible components.`;
+        const defaultPrompt = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format. Try to provide full HTML code of the UI in the image.`;
         data = await uploadImage(file, defaultPrompt);
       } else {
         data = await uploadImage(file, prompt);
@@ -101,7 +101,7 @@ export default function Home() {
             <textarea
               onChange={handlePromptChange}
               rows={10}
-              placeholder={`Identify and describe all the elements present in the given UI screenshot. Please provide details about buttons, text fields, images, and any other visible components.
+              placeholder={`Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format. Try to provide full HTML code of the UI in the image.
               `}
               className="w-[100%] my-2 bg-inherit rounded-md border p-2"
             />
