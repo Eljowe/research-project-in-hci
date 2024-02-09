@@ -1,5 +1,4 @@
 "use client";
-import { FormEvent, use } from "react";
 import { useState, useEffect } from "react";
 
 export default function Home() {
@@ -25,9 +24,13 @@ export default function Home() {
 
   useEffect(() => {
     const checkModel = async () => {
-      const response = await fetch("http://localhost:1234/v1/models");
-      if (response.ok) {
-        setModelOnline(true);
+      try {
+        const response = await fetch("http://localhost:1234/v1/models");
+        if (response.ok) {
+          setModelOnline(true);
+        }
+      } catch (error) {
+        setModelOnline(false);
       }
     };
     checkModel();
@@ -43,11 +46,7 @@ export default function Home() {
     if (file) {
       var data = null;
       if (!prompt) {
-        const defaultPrompt = `
-        Identify and describe all the elements present in the given UI screenshot. 
-        Please provide details about buttons, text fields, images, and any other visible components.
-        Answer in short, max 30 word answer.
-        `;
+        const defaultPrompt = `Identify and describe all the elements present in the given UI screenshot. Please provide details about buttons, text fields, images, and any other visible components.`;
         data = await uploadImage(file, defaultPrompt);
       } else {
         data = await uploadImage(file, prompt);
@@ -102,7 +101,7 @@ export default function Home() {
             <textarea
               onChange={handlePromptChange}
               rows={10}
-              placeholder={`Identify and describe all the elements present in the given UI screenshot. Please provide details about buttons, text fields, images, and any other visible components. Answer in short, max 30 word answer.
+              placeholder={`Identify and describe all the elements present in the given UI screenshot. Please provide details about buttons, text fields, images, and any other visible components.
               `}
               className="w-[100%] my-2 bg-inherit rounded-md border p-2"
             />

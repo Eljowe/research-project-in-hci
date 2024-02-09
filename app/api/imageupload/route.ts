@@ -28,7 +28,6 @@ export const POST = async (req: Request, res: Response) => {
   const testPrompt = `
   Identify and describe all the elements present in the given UI screenshot. 
   Please provide details about buttons, text fields, images, and any other visible components.
-  Answer in short, max 30 word answer.
   `;
   try {
     const generatedResponse = await postPromptLLM(prompt as string, file as File);
