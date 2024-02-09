@@ -32,8 +32,9 @@ export const POST = async (req: Request, res: Response) => {
   try {
     const generatedResponse = await postPromptLLM(prompt as string, file as File);
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    /*const buffer = Buffer.from(await file.arrayBuffer());
     await writeFile(path.join(process.cwd(), "public/uploads/" + filename), buffer);
+    */
     return new Response(
       JSON.stringify({ Message: "Success", filename: filename, generatedResponse: generatedResponse }),
       { status: 201 }

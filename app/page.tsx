@@ -1,7 +1,6 @@
 "use client";
 import { FormEvent } from "react";
-import { useState } from "react";
-import { set } from "zod";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
@@ -66,7 +65,7 @@ export default function Home() {
               placeholder="Prompt text"
               className="w-[100%] my-2 bg-inherit rounded-md border p-2"
             />
-            {loading == true || uploadedImage?.includes(file!.name) || !prompt || !file ? (
+            {loading == true || !prompt || !file ? (
               <input
                 type="submit"
                 value="Submit"
