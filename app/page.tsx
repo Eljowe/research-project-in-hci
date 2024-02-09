@@ -81,15 +81,15 @@ export default function Home() {
   }
 
   return (
-    <main className="w-[100%] justify-center flex-wrap  flex min-h-screen text-black bg-[#fffafa] p-6">
-      <div className="w-[100%] h-min flex justify-center flex-wrap">
-        {modelOnline ? (
-          <h1 className="text-green-500">Model is online</h1>
-        ) : (
-          <h1 className="text-red-500">Model is offline</h1>
-        )}
+    <main className="w-[100%] justify-center flex-col flex min-h-screen text-black bg-[#fffafa] p-6">
+      <div className="w-[100%] h-min flex justify-center items-center flex-col">
         {loading && <h1 className="text-blue-500 text-2xl sticky top-1/2 left-1/2 animate-pulse">Loading...</h1>}
         <div className="min-w-[350px] w-[100%] max-w-[700px] h-min max-h-[800px] space-y-2 flex flex-col m-2 border p-4">
+          {modelOnline ? (
+            <h1 className="text-green-500">Model is online</h1>
+          ) : (
+            <h1 className="text-red-500">Model is offline</h1>
+          )}
           <form onSubmit={handleSubmit}>
             <label className="mb-2 inline-block text-neutral-900 ">Input image</label>
             <input
