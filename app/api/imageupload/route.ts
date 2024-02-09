@@ -2,8 +2,8 @@ import path from "path";
 import { writeFile } from "fs/promises";
 import base64 from "base64-js";
 
-const baseUrl = "http://localhost:1234/v1";
-const saveImage = false;
+const BASE_URL = "http://localhost:1234/v1";
+const SAVE_IMAGE = false;
 
 export async function GET(request: Request) {
   return new Response(JSON.stringify({ body: "ok" }), {
@@ -28,7 +28,7 @@ export const POST = async (req: Request, res: Response) => {
   const testPrompt = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format. Try to provide full HTML code of the UI in the image.`;
   try {
     const generatedResponse = await postPromptLLM(prompt as string, file as File);
-    if (saveImage) {
+    if (SAVE_IMAGE) {
       const buffer = Buffer.from(await file.arrayBuffer());
       await writeFile(path.join(process.cwd(), "public/uploads/" + filename), buffer);
     }
@@ -37,7 +37,7 @@ export const POST = async (req: Request, res: Response) => {
         Message: "Success",
         filename: filename,
         generatedResponse: generatedResponse,
-        saveImage: saveImage,
+        SAVE_IMAGE: SAVE_IMAGE,
       }),
       { status: 201 }
     );
@@ -51,7 +51,7 @@ async function postPromptLLM(prompt: string, file: File) {
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
     const base64Data = buffer.toString("base64");
-    const response = await fetch(`${baseUrl}/chat/completions`, {
+    const response = await fetch(`${BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
         Authorization: "Bearer not-needed",
