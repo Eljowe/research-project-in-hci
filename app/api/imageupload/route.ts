@@ -1,13 +1,13 @@
 import path from "path";
 import { writeFile } from "fs/promises";
-import fs from "fs";
+import base64 from "base64-js";
 
 const baseUrl = "http://localhost:1234/v1";
 
 export async function GET(request: Request) {
   return new Response(JSON.stringify({ body: "ok" }), {
     status: 200,
-    statusText: "Bad Request",
+    statusText: "Hello from route imageupload/GET",
   });
 }
 
@@ -24,16 +24,20 @@ export const POST = async (req: Request, res: Response) => {
 
   const filename = Date.now() + file.name.replaceAll(" ", "_");
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  console.log(filename);
   const testPrompt = `
   Identify and describe all the elements present in the given UI screenshot. 
   Please provide details about buttons, text fields, images, and any other visible components.
+  Answer in short, max 30 word answer.
   `;
   try {
-    postPromptLLM(testPrompt as string, file as File);
+    const generatedResponse = await postPromptLLM(prompt as string, file as File);
+
+    const buffer = Buffer.from(await file.arrayBuffer());
     await writeFile(path.join(process.cwd(), "public/uploads/" + filename), buffer);
-    return new Response(JSON.stringify({ Message: "Success", filename: filename }), { status: 201 });
+    return new Response(
+      JSON.stringify({ Message: "Success", filename: filename, generatedResponse: generatedResponse }),
+      { status: 201 }
+    );
   } catch (error) {
     console.log("Error occured ", error);
     return new Response(JSON.stringify({ Message: "Failed" }), { status: 500 });
@@ -42,6 +46,8 @@ export const POST = async (req: Request, res: Response) => {
 
 async function postPromptLLM(prompt: string, file: File) {
   try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const base64Data = buffer.toString("base64");
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
@@ -51,9 +57,18 @@ async function postPromptLLM(prompt: string, file: File) {
       body: JSON.stringify({
         model: "local-model",
         messages: [
-          { role: "system", content: "use clear language" },
-          { role: "user", content: prompt },
-          { role: "user", content: file, image: true }, // Include image data
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${base64Data}`,
+                },
+              },
+            ],
+          },
         ],
         temperature: 0.7,
       }),
@@ -64,7 +79,8 @@ async function postPromptLLM(prompt: string, file: File) {
     }
 
     const data = await response.json();
-    console.log(data.choices[0].message);
+    return data.choices[0].message.content;
+    // Add your logic here, for example, sending the base64Data to the server
   } catch (error) {
     console.error(error);
   }
