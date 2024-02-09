@@ -1,5 +1,5 @@
 "use client";
-import { FormEvent } from "react";
+import { FormEvent, use } from "react";
 import { useState, useEffect } from "react";
 
 export default function Home() {
@@ -7,12 +7,24 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<string | null>(null);
+  const [generatedOutput, setGeneratedOutput] = useState<string | null>(null);
+  const [modelOnline, setModelOnline] = useState<boolean>(false);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       setFile(event.target.files[0]);
     }
   };
+
+  useEffect(() => {
+    const checkModel = async () => {
+      const response = await fetch("http://localhost:1234/v1/models");
+      if (response.ok) {
+        setModelOnline(true);
+      }
+    };
+    checkModel();
+  }, []);
 
   const handlePromptChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPrompt(event.target.value);
@@ -21,8 +33,20 @@ export default function Home() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
-    if (file && prompt) {
-      const data = await uploadImage(file, prompt);
+    if (file) {
+      var data = null;
+      if (!prompt) {
+        const defaultPrompt = `
+        Identify and describe all the elements present in the given UI screenshot. 
+        Please provide details about buttons, text fields, images, and any other visible components.
+        Answer in short, max 30 word answer.
+        `;
+        data = await uploadImage(file, defaultPrompt);
+      } else {
+        data = await uploadImage(file, prompt);
+      }
+      console.log(data);
+      setGeneratedOutput(data);
     }
     setLoading(false);
   };
@@ -49,6 +73,12 @@ export default function Home() {
   return (
     <main className="w-[100%] justify-center flex-wrap  flex min-h-screen text-black bg-[#fffafa] p-6">
       <div className="w-[100%] h-min flex border justify-center flex-wrap">
+        {modelOnline ? (
+          <h1 className="text-green-500">Model is online</h1>
+        ) : (
+          <h1 className="text-red-500">Model is offline</h1>
+        )}
+        {loading && <h1 className="text-blue-500 text-2xl absolute top-1/2 left-1/2 animate-pulse">Loading...</h1>}
         <div className="min-w-[350px] w-[100%] max-w-[700px] h-min max-h-[800px] space-y-2 flex flex-col m-2 border p-4">
           <form onSubmit={handleSubmit}>
             <label className="mb-2 inline-block text-neutral-900 ">Input image</label>
@@ -62,10 +92,11 @@ export default function Home() {
             <textarea
               onChange={handlePromptChange}
               rows={10}
-              placeholder="Prompt text"
+              placeholder={`Identify and describe all the elements present in the given UI screenshot. Please provide details about buttons, text fields, images, and any other visible components. Answer in short, max 30 word answer.
+              `}
               className="w-[100%] my-2 bg-inherit rounded-md border p-2"
             />
-            {loading == true || !prompt || !file ? (
+            {loading == true || !file ? (
               <input
                 type="submit"
                 value="Submit"
