@@ -1,9 +1,15 @@
 import path from "path";
 import { writeFile } from "fs/promises";
 
-const BASE_URL = "http://localhost:1234/v1";
+const USE_GPT = false;
 const SAVE_IMAGE = false;
+const MAX_TOKENS = 550;
+
 const TEST_PROMPT = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format. Try to provide full HTML code of the UI in the image.`;
+
+const API_KEY = USE_GPT ? process.env.OPENAI_API_KEY : "not-needed";
+const MODEL = USE_GPT ? "gpt-4-vision-preview" : "local-model";
+const BASE_URL = USE_GPT ? "https://api.openai.com/v1/chat/completions" : "http://localhost:1234/v1";
 
 export async function GET(request: Request) {
   // This is a test route to check if the API is reachable
@@ -65,6 +71,11 @@ export const POST = async (req: Request, res: Response) => {
 async function postPromptLLM(prompt: string, file: File) {
   try {
     //Convert file to base64 because LLM accepts base64 encoded images
+    console.log(`
+      USE_GPT: ${USE_GPT}
+      MODEL: ${MODEL}
+      BASE_URL: ${BASE_URL}
+    `);
     const buffer = Buffer.from(await file.arrayBuffer());
     const base64Data = buffer.toString("base64");
     const response = await fetch(`${BASE_URL}/chat/completions`, {
@@ -72,11 +83,11 @@ async function postPromptLLM(prompt: string, file: File) {
       // Will need some changes to make it work with GPT4 API
       method: "POST",
       headers: {
-        Authorization: "Bearer not-needed",
+        Authorization: `Bearer ${API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "local-model",
+        model: MODEL,
         messages: [
           {
             role: "user",
@@ -91,6 +102,7 @@ async function postPromptLLM(prompt: string, file: File) {
             ],
           },
         ],
+        max_tokens: MAX_TOKENS,
       }),
     });
 
@@ -101,6 +113,6 @@ async function postPromptLLM(prompt: string, file: File) {
     const data = await response.json();
     return data.choices[0].message.content;
   } catch (error) {
-    console.error("Error occured while posting prompt to LLM: ");
+    console.error("Error occured while posting prompt to LLM");
   }
 }
