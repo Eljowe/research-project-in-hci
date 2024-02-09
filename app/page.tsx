@@ -51,9 +51,7 @@ export default function Home() {
       } else {
         data = await uploadImage(file, prompt);
       }
-      console.log(data);
       setGeneratedOutput(data.generatedResponse);
-      console.log(data.generatedResponse);
     }
     setLoading(false);
   };
