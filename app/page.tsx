@@ -1,9 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { set } from "zod";
 import Image from "next/image";
 
-const DEFAULT_PROMPT = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format that are present in the UI screenshot. Provide full HTML code that would result in an UI resembling the original image. You don't need to implement the functionality of the UI, just the structure and layout of the screenshot UI.`;
+const DEFAULT_PROMPT = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format. Provide HTML code that would result in an UI resembling the original image. You don't need to implement the functionality of the UI or write javascript functionality, just the structure and layout of the screenshot UI.`;
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);

@@ -103,6 +103,7 @@ async function postPromptLLM(prompt: string, file: File) {
           },
         ],
         max_tokens: MAX_TOKENS,
+        temperature: 0.001,
       }),
     });
 
