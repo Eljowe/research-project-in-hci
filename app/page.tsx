@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { set } from "zod";
+import Image from "next/image";
 
 const DEFAULT_PROMPT = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format that are present in the UI screenshot. Provide full HTML code that would result in an UI resembling the original image. You don't need to implement the functionality of the UI, just the structure and layout of the screenshot UI.`;
 
@@ -147,12 +148,20 @@ export default function Home() {
         <div className="m-2 flex h-min w-[100%] min-w-[350px] max-w-[700px] flex-col space-y-2 border p-4">
           <p>Selected image:</p>
           {temporaryImageFile && !uploadedImagePath ? (
-            <img src={temporaryImageFile} className="h-[60%] max-h-[400px] object-contain" alt="Selected image" />
+            <Image
+              width={600}
+              height={600}
+              src={temporaryImageFile}
+              className="mx-auto h-[60%] max-h-[400px] object-contain"
+              alt="UI screenshot"
+            />
           ) : null}
           {uploadedImagePath && (
-            <img
+            <Image
+              width={600}
+              height={600}
               alt="UI screenshot"
-              className="h-[60%] max-h-[400px] object-contain"
+              className="mx-auto h-[60%] max-h-[400px] object-contain"
               src={`/uploads/${uploadedImagePath}`}
             />
           )}
