@@ -1,7 +1,7 @@
 import path from "path";
 import { writeFile } from "fs/promises";
 
-const USE_GPT = false;
+const USE_GPT = true;
 const SAVE_IMAGE = false;
 const MAX_TOKENS = 550;
 
@@ -9,7 +9,7 @@ const TEST_PROMPT = `Identify the elements present in the given UI screenshot. P
 
 const API_KEY = USE_GPT ? process.env.OPENAI_API_KEY : "not-needed";
 const MODEL = USE_GPT ? "gpt-4-vision-preview" : "local-model";
-const BASE_URL = USE_GPT ? "https://api.openai.com/v1/chat/completions" : "http://localhost:1234/v1";
+const BASE_URL = USE_GPT ? "https://api.openai.com/v1" : "http://localhost:1234/v1";
 
 export async function GET(request: Request) {
   // This is a test route to check if the API is reachable
@@ -106,7 +106,6 @@ async function postPromptLLM(prompt: string, file: File) {
         temperature: 0.001,
       }),
     });
-
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
