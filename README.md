@@ -31,6 +31,9 @@ The workflow is following:
 3. Wait until the loading indicator has disappeared
 4. Check results. Currently, the UI shows the LLM response in text format, and the HTML "replication".
 
+![user interface](/public/full_ui.JPG)
+User interface
+
 ## LLM API configuration
 
 This tool has been tested with local LLMs running at `localhost:1234` and openAI api at `https://api.openai.com/v1`. The GPT-4 works when adding `OPENAI_API_KEY` to `.env.local`, and setting `USE_GPT=true` at `app/api/imageupload/route.ts`
