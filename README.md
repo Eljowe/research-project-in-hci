@@ -29,7 +29,7 @@ The workflow is following:
 1. Select image file (png, jpg, jpeg should work)
 2. Write prompt (or if left empty, use the example prompt) and press `submit`
 3. Wait until the loading indicator has disappeared
-4. Check results
+4. Check results. Currently, the UI shows the LLM response in text format, and the HTML "replication".
 
 ## LLM API configuration
 
