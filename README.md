@@ -33,7 +33,7 @@ The workflow is following:
 
 ## LLM API configuration
 
-Currently, this tool has been tested with only local LLMs running at `localhost:1234`. The app should work when adding `OPENAI_API_KEY` to `.env.local` for GPT-4 vision API, as the API-calls remain the same.
+This tool has been tested with local LLMs running at `localhost:1234` and openAI api at `https://api.openai.com/v1`. The GPT-4 works when adding `OPENAI_API_KEY` to `.env.local`, and setting `USE_GPT=true` at `app/api/imageupload/route.ts`
 
 <!-- HTML syntax -->
 <p align="center">
