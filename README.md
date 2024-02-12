@@ -24,7 +24,12 @@ Backend is located at `app/api/imageupload/route.ts` and can be called at route 
 
 ## Using this tool
 
-The workflow is following
+The workflow is following:
+
+1. Select image file (png, jpg, jpeg should work)
+2. Write prompt (or if left empty, use the example prompt) and press `submit`
+3. Wait until the loading indicator has disappeared
+4. Check results
 
 ## LLM API configuration
 
