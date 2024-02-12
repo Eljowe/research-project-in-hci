@@ -38,6 +38,8 @@ User interface
 
 This tool has been tested with local LLMs running at `localhost:1234` and openAI api at `https://api.openai.com/v1`. The GPT-4 works when adding `OPENAI_API_KEY` to `.env.local`, and setting `USE_GPT=true` at `app/api/imageupload/route.ts`
 
+Local LLM models can be run with [LM Studio](https://lmstudio.ai/) which supports at least the following modded multimodal models: [BakLLaVA-1-GGUF](https://huggingface.co/abetlen/BakLLaVA-1-GGUF/tree/main), [obsidian-3b-multimodal-q6-gguf](https://huggingface.co/nisten/obsidian-3b-multimodal-q6-gguf), and [liuhaotian_llava-v1.5-13b-GGUF](https://huggingface.co/PsiPi/liuhaotian_llava-v1.5-13b-GGUF)
+
 <!-- HTML syntax -->
 <p align="center">
   <img src="/public/test_tui.png" width="40%" style="max-width: 300px;" alt="test input image">
