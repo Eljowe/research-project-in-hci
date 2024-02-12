@@ -37,8 +37,8 @@ Currently, this tool has been tested with only local LLMs running at `localhost:
 
 <!-- HTML syntax -->
 <p align="center">
-  <img src="/public/test_tui.png" height="400" alt="test input image">
+  <img src="/public/test_tui.png" width="40%" style="max-width: 300px;" alt="test input image">
 
-  <img src="/public/capture.jpg" height="400" alt="test output image">
+  <img src="/public/Capture.jpg" width="40%" style="max-width: 300px;" alt="test output image">
 </p>
 Above images are the test input (left) and the output (right). Above example was produced with GPT-4-vision-preview model.
