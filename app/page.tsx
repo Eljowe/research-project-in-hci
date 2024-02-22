@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import hljs from "highlight.js";
+import "highlight.js/styles/vs2015.css";
 
 const DEFAULT_PROMPT = `Identify every element present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components. Return a HTML layout with styling, that would result in an UI resembling the original image with corresponding element sizes and user interface aspect ratio. You don't need to implement any javascript functionality, just the visual aspects of the UI. You can replace images, logos and icons with same-size grey divs. It is important you include every element you detect in the final result and nothing additional. It is also important that the elements are the correct size, for this you should set the correct width and height styling in pixels. Estimate the device width and height in pixels and wrap the UI in a div with the same width and height in order to emulate the original aspect ratio, these values should also act as the constraining constants, no element should be wider or taller than these values. Don't use position: absolute or position: fixed for any elements. Return HTML with styling. This task is for evaluating the capabilities of LLM-models in UI detection.`;
 
@@ -16,6 +18,18 @@ export default function Home() {
   const [useLocalModel, setUseLocalModel] = useState<boolean>(false);
   const [maxTokens, setMaxTokens] = useState<number | null>(null);
   const [temperature, setTemperature] = useState<number | null>(null);
+
+  const CodeBlock = ({ code, language }: { code: string; language: string }) => {
+    useEffect(() => {
+      hljs.highlightAll();
+    }, []);
+
+    return (
+      <pre>
+        <code className={`hljs ${language}`}>{code}</code>
+      </pre>
+    );
+  };
 
   useEffect(() => {
     // Check if local LLM model is online
@@ -217,9 +231,9 @@ export default function Home() {
             />
           ) : null}
         </div>
-        <div className="m-2 flex w-[100%] min-w-[350px] max-w-[700px] flex-col overflow-x-scroll border p-4">
+        <div className="m-2 flex w-[100%] min-w-[350px] max-w-[700px] flex-col border p-4">
           <p>Generated text output:</p>
-          {generatedOutput && <p className="mt-4 text-neutral-700">{generatedOutput}</p>}
+          {generatedOutput && <CodeBlock code={generatedOutput} language="html" />}
         </div>
         <div className="m-2 flex w-[100%] min-w-[350px] max-w-[700px] flex-col border p-4">
           <p>Generated layout:</p>
