@@ -2,8 +2,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-const DEFAULT_PROMPT = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format. Provide HTML code that would result in an UI resembling the original image. You don't need to implement the functionality of the UI or write javascript functionality, just the structure and layout of the screenshot UI.`;
-const test_prompt = `Identify every element present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components. Return a HTML layout with styling, that would result in an UI resembling the original image with corresponding element sizes and user interface aspect ratio. You don't need to implement any javascript functionality, just the visual aspects of the UI. You can replace images, logos and icons with same-size grey divs. It is important you include every element you detect in the final result. It is also important that the elements are the correct size, for this you should set the correct width and height styling in pixels. Estimate the device width and height in pixels and wrap the UI in a div with the same width and height in order to emulate the original aspect ratio, these values should also act as the constraining constants, no element should be wider or taller than these values. Don't use position: absolute or position: fixed for any elements. Return HTML with styling.`;
+const DEFAULT_PROMPT = `Identify every element present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components. Return a HTML layout with styling, that would result in an UI resembling the original image with corresponding element sizes and user interface aspect ratio. You don't need to implement any javascript functionality, just the visual aspects of the UI. You can replace images, logos and icons with same-size grey divs. It is important you include every element you detect in the final result. It is also important that the elements are the correct size, for this you should set the correct width and height styling in pixels. Estimate the device width and height in pixels and wrap the UI in a div with the same width and height in order to emulate the original aspect ratio, these values should also act as the constraining constants, no element should be wider or taller than these values. Don't use position: absolute or position: fixed for any elements. Return HTML with styling.`;
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
@@ -64,9 +63,6 @@ export default function Home() {
       } else {
         data = await uploadImage(file, prompt);
       }
-      if (data) {
-        setGeneratedOutput(data.generatedResponse);
-      }
     }
     setLoading(false);
   };
@@ -76,7 +72,7 @@ export default function Home() {
     formData.append("file", file);
     formData.append("prompt", prompt);
     try {
-      const response = await fetch("/api/imageupload", {
+      const response = await fetch("/api/openai", {
         method: "POST",
         body: formData,
       });
@@ -84,12 +80,27 @@ export default function Home() {
         setErrorAlert(true);
         setLoading(false);
         return;
+      } else {
+        const reader = response.body!.getReader();
+        const processStream = async () => {
+          while (true) {
+            // .read() returns 2 properties
+            const { done, value } = await reader.read();
+
+            if (done) {
+              console.log("stream completed");
+              setLoading(false);
+              break;
+            }
+            let chunk = new TextDecoder("utf-8").decode(value);
+
+            chunk = chunk.replace(/^data: /, "");
+
+            setGeneratedOutput((prev) => (prev == null ? chunk : prev + chunk));
+          }
+        };
+        processStream().catch((err) => console.log("--stream error--", err));
       }
-      const data = await response.json();
-      if (data.saveImage) {
-        setUploadedImagePath(data.filename);
-      }
-      return data;
     } catch (error) {
       console.error("Error occured while uploading image: ", error);
     }
@@ -123,7 +134,7 @@ export default function Home() {
             {developerMode && (
               <textarea
                 onChange={handlePromptChange}
-                rows={6}
+                rows={10}
                 placeholder={DEFAULT_PROMPT}
                 className="w-[100%] rounded-md border bg-inherit p-2"
               />
@@ -180,13 +191,13 @@ export default function Home() {
             />
           )}
         </div>
-        <div className="m-2 flex w-[100%] min-w-[350px] max-w-[700px] flex-col border p-4">
+        <div className="m-2 flex w-[100%] min-w-[350px] max-w-[700px] flex-col overflow-x-scroll border p-4">
           <p>Generated text output:</p>
           {generatedOutput && <p className="mt-4 text-neutral-700">{generatedOutput}</p>}
         </div>
         <div className="m-2 flex w-[100%] min-w-[350px] max-w-[700px] flex-col border p-4">
           <p>Generated layout:</p>
-          {generatedOutput && <div dangerouslySetInnerHTML={{ __html: generatedOutput }} />}
+          {generatedOutput && <div className="mt-4" dangerouslySetInnerHTML={{ __html: generatedOutput }} />}
         </div>
       </div>
     </main>

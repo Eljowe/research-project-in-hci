@@ -80,7 +80,6 @@ async function postPromptLLM(prompt: string, file: File) {
     const base64Data = buffer.toString("base64");
     const response = await fetch(`${BASE_URL}/chat/completions`, {
       // API payload
-      // Will need some changes to make it work with GPT4 API
       method: "POST",
       headers: {
         Authorization: `Bearer ${API_KEY}`,
