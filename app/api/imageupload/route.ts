@@ -3,7 +3,7 @@ import { writeFile } from "fs/promises";
 
 const USE_GPT = true;
 const SAVE_IMAGE = false;
-const MAX_TOKENS = 550;
+const MAX_TOKENS = 1000;
 
 const TEST_PROMPT = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format. Try to provide full HTML code of the UI in the image.`;
 

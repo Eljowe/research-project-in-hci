@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 
 const DEFAULT_PROMPT = `Identify the elements present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components in HTML format. Provide HTML code that would result in an UI resembling the original image. You don't need to implement the functionality of the UI or write javascript functionality, just the structure and layout of the screenshot UI.`;
+const test_prompt = `Identify every element present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components. Return a HTML layout with styling, that would result in an UI resembling the original image with corresponding element sizes and user interface aspect ratio. You don't need to implement any javascript functionality, just the visual aspects of the UI. You can replace images, logos and icons with same-size grey divs. It is important you include every element you detect in the final result. It is also important that the elements are the correct size, for this you should set the correct width and height styling in pixels. Estimate the device width and height in pixels and wrap the UI in a div with the same width and height in order to emulate the original aspect ratio, these values should also act as the constraining constants, no element should be wider or taller than these values. Don't use position: absolute or position: fixed for any elements. Return HTML with styling.`;
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
@@ -13,6 +14,7 @@ export default function Home() {
   const [modelOnlineStatus, setModelOnlineStatus] = useState<boolean>(false);
   const [temporaryImageFile, setTemporaryImageFile] = useState<string | null>(null);
   const [errorAlert, setErrorAlert] = useState<boolean>(false);
+  const [developerMode, setDeveloperMode] = useState<boolean>(false);
 
   useEffect(() => {
     // Check if local LLM model is online
@@ -28,6 +30,10 @@ export default function Home() {
     };
     checkModel();
   }, []);
+
+  const toggleDeveloperMode = () => {
+    setDeveloperMode(!developerMode);
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -90,15 +96,22 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen w-[100%] flex-col justify-center bg-[#fffafa] px-4 py-2 text-black">
+    <main className="justify-star flex min-h-screen w-[100%] flex-col bg-[#fffafa] px-4 py-2 text-black">
       <div className="flex h-min w-[100%] flex-col items-center justify-center">
-        <div className="m-2 flex h-min max-h-[800px] w-[100%] min-w-[350px] max-w-[700px] flex-col space-y-2 border p-4">
+        <div className="flex w-full flex-row justify-between px-4 py-2">
           {modelOnlineStatus ? (
             <h1 className="text-green-500">Local model is online</h1>
           ) : (
             <h1 className="text-red-500">Local model is offline</h1>
           )}
-          <form onSubmit={handleSubmit}>
+          <label className="inline-flex cursor-pointer items-center">
+            <span className="me-3 text-sm font-medium text-gray-900 dark:text-gray-300">Developer mode</span>
+            <input type="checkbox" checked={developerMode} onChange={toggleDeveloperMode} className="peer sr-only" />
+            <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
+          </label>
+        </div>
+        <div className="m-2 flex h-min max-h-[800px] w-[100%] min-w-[350px] max-w-[700px] flex-col space-y-2 border p-4">
+          <form onSubmit={handleSubmit} className="space-y-2">
             <label className="mb-2 inline-block text-neutral-900 ">Input image</label>
             <input
               className="file focus:border-primary focus focus:shadow-te-primary relative m-0 block w-full min-w-0 flex-auto cursor-pointer rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-300 focus:outline-none "
@@ -107,12 +120,14 @@ export default function Home() {
               accept="image/jpeg, image/png, image/jpg"
               onChange={handleFileChange}
             />
-            <textarea
-              onChange={handlePromptChange}
-              rows={10}
-              placeholder={DEFAULT_PROMPT}
-              className="my-2 w-[100%] rounded-md border bg-inherit p-2"
-            />
+            {developerMode && (
+              <textarea
+                onChange={handlePromptChange}
+                rows={6}
+                placeholder={DEFAULT_PROMPT}
+                className="w-[100%] rounded-md border bg-inherit p-2"
+              />
+            )}
             {loading == true || !file ? (
               <input
                 type="submit"
