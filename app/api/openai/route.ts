@@ -1,15 +1,6 @@
 import OpenAI from "openai";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 
-const USE_GPT = false;
-const MAX_TOKENS = 1000;
-
-const API_KEY = USE_GPT ? process.env.OPENAI_API_KEY : "not-needed";
-const MODEL = USE_GPT ? "gpt-4-vision-preview" : "local-model";
-const BASE_URL = USE_GPT ? "https://api.openai.com/v1" : "http://localhost:1234/v1";
-
-const openai = new OpenAI({ apiKey: API_KEY, baseURL: BASE_URL });
-
 export async function GET(request: Request) {
   // This is a test route to check if the API is reachable
   return new Response(JSON.stringify({ body: "ok" }), {
@@ -26,6 +17,26 @@ export const POST = async (req: Request, res: Response) => {
 
   const file = formData.get("file") as File;
   const prompt = formData.get("prompt");
+  const use_local = formData.get("useLocalModel");
+  const MAX_TOKENS = formData.get("maxTokens") || 1000;
+  const TEMPERATURE = formData.get("temperature") || 0.001;
+
+  const USE_GPT = use_local !== "true";
+
+  const API_KEY = USE_GPT ? process.env.OPENAI_API_KEY : "not-needed";
+  const MODEL = USE_GPT ? "gpt-4-vision-preview" : "local-model";
+  const BASE_URL = USE_GPT ? "https://api.openai.com/v1" : "http://localhost:1234/v1";
+
+  console.log(`
+  Use Local Model: ${use_local}
+  Model: ${MODEL}
+  base URL: ${BASE_URL}
+  Max Tokens: ${MAX_TOKENS}
+  Temperature: ${TEMPERATURE}
+
+`);
+
+  const openai = new OpenAI({ apiKey: API_KEY, baseURL: BASE_URL });
 
   if (!file || !prompt) {
     console.log("No files or prompt received.");
@@ -53,8 +64,8 @@ export const POST = async (req: Request, res: Response) => {
         },
       ],
       stream: true,
-      max_tokens: MAX_TOKENS,
-      temperature: 0.001,
+      max_tokens: Number(MAX_TOKENS),
+      temperature: Number(TEMPERATURE),
     });
     const stream = OpenAIStream(response);
 

@@ -2,18 +2,20 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-const DEFAULT_PROMPT = `Identify every element present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components. Return a HTML layout with styling, that would result in an UI resembling the original image with corresponding element sizes and user interface aspect ratio. You don't need to implement any javascript functionality, just the visual aspects of the UI. You can replace images, logos and icons with same-size grey divs. It is important you include every element you detect in the final result. It is also important that the elements are the correct size, for this you should set the correct width and height styling in pixels. Estimate the device width and height in pixels and wrap the UI in a div with the same width and height in order to emulate the original aspect ratio, these values should also act as the constraining constants, no element should be wider or taller than these values. Don't use position: absolute or position: fixed for any elements. Return HTML with styling.`;
+const DEFAULT_PROMPT = `Identify every element present in the given UI screenshot. Please provide all the buttons, text fields, images, and any other visible components. Return a HTML layout with styling, that would result in an UI resembling the original image with corresponding element sizes and user interface aspect ratio. You don't need to implement any javascript functionality, just the visual aspects of the UI. You can replace images, logos and icons with same-size grey divs. It is important you include every element you detect in the final result and nothing additional. It is also important that the elements are the correct size, for this you should set the correct width and height styling in pixels. Estimate the device width and height in pixels and wrap the UI in a div with the same width and height in order to emulate the original aspect ratio, these values should also act as the constraining constants, no element should be wider or taller than these values. Don't use position: absolute or position: fixed for any elements. Return HTML with styling. This task is for evaluating the capabilities of LLM-models in UI detection.`;
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [uploadedImagePath, setUploadedImagePath] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<string | null>(null);
   const [generatedOutput, setGeneratedOutput] = useState<string | null>(null);
   const [modelOnlineStatus, setModelOnlineStatus] = useState<boolean>(false);
   const [temporaryImageFile, setTemporaryImageFile] = useState<string | null>(null);
   const [errorAlert, setErrorAlert] = useState<boolean>(false);
   const [developerMode, setDeveloperMode] = useState<boolean>(false);
+  const [useLocalModel, setUseLocalModel] = useState<boolean>(false);
+  const [maxTokens, setMaxTokens] = useState<number | null>(null);
+  const [temperature, setTemperature] = useState<number | null>(null);
 
   useEffect(() => {
     // Check if local LLM model is online
@@ -28,7 +30,7 @@ export default function Home() {
       }
     };
     checkModel();
-  }, []);
+  }, [useLocalModel]);
 
   const toggleDeveloperMode = () => {
     setDeveloperMode(!developerMode);
@@ -45,10 +47,6 @@ export default function Home() {
 
       reader.readAsDataURL(event.target.files[0]);
     }
-  };
-
-  const handlePromptChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setPrompt(event.target.value);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -69,9 +67,13 @@ export default function Home() {
 
   async function uploadImage(file: File, prompt: string) {
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("prompt", prompt);
+
     try {
+      formData.append("file", file);
+      formData.append("prompt", prompt);
+      formData.append("useLocalModel", useLocalModel.toString());
+      formData.append("maxTokens", maxTokens != null ? maxTokens.toString() : "1000");
+      formData.append("temperature", temperature != null ? temperature.toString() : "0.001");
       const response = await fetch("/api/openai", {
         method: "POST",
         body: formData,
@@ -106,17 +108,18 @@ export default function Home() {
     }
   }
 
+  const handleTemperatureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Parsing the input value as a float and updating the state
+    const newValue: number = parseFloat(event.target.value);
+    setTemperature(isNaN(newValue) ? null : newValue);
+  };
+
   return (
     <main className="justify-star flex min-h-screen w-[100%] flex-col bg-[#fffafa] px-4 py-2 text-black">
       <div className="flex h-min w-[100%] flex-col items-center justify-center">
-        <div className="flex w-full flex-row justify-between px-4 py-2">
-          {modelOnlineStatus ? (
-            <h1 className="text-green-500">Local model is online</h1>
-          ) : (
-            <h1 className="text-red-500">Local model is offline</h1>
-          )}
+        <div className="flex w-full flex-row justify-end px-4 py-2">
           <label className="inline-flex cursor-pointer items-center">
-            <span className="me-3 text-sm font-medium text-gray-900 dark:text-gray-300">Developer mode</span>
+            <span className="me-3 text-sm font-medium text-gray-900">Developer mode</span>
             <input type="checkbox" checked={developerMode} onChange={toggleDeveloperMode} className="peer sr-only" />
             <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
           </label>
@@ -132,12 +135,44 @@ export default function Home() {
               onChange={handleFileChange}
             />
             {developerMode && (
-              <textarea
-                onChange={handlePromptChange}
-                rows={10}
-                placeholder={DEFAULT_PROMPT}
-                className="w-[100%] rounded-md border bg-inherit p-2"
-              />
+              <div className="flex flex-col space-y-4 pt-4">
+                <label className="inline-flex cursor-pointer items-center">
+                  <span className="me-3 text-sm font-medium text-neutral-900">Use local model</span>
+                  <input
+                    type="checkbox"
+                    checked={useLocalModel}
+                    onChange={() => setUseLocalModel(!useLocalModel)}
+                    className="peer sr-only"
+                  />
+                  <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-green-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
+                </label>
+                {!modelOnlineStatus && useLocalModel ? <h1 className="text-red-500">Local model is offline</h1> : null}
+                <input
+                  type="number"
+                  placeholder="Max tokens (1 - 2000)"
+                  value={maxTokens != null ? maxTokens.toString() : ""} // Convert maxTokens to a string if it's not null
+                  min={1}
+                  max={2000}
+                  onChange={(e) => setMaxTokens(parseInt(e.target.value))}
+                  className="rounded-md border bg-inherit p-2"
+                />
+                <input
+                  type="number"
+                  value={temperature != null ? temperature.toString() : ""}
+                  placeholder="Temperature (0.001 - 1)"
+                  min={0.001}
+                  max={1}
+                  step="any"
+                  onChange={(e) => setTemperature(parseFloat(e.target.value))}
+                  className="rounded-md border bg-inherit p-2"
+                />
+                <textarea
+                  onChange={(e) => setPrompt(e.target.value)}
+                  rows={10}
+                  placeholder={DEFAULT_PROMPT}
+                  className="w-[100%] rounded-md border bg-inherit p-2"
+                />
+              </div>
             )}
             {loading == true || !file ? (
               <input
@@ -172,7 +207,7 @@ export default function Home() {
         </div>
         <div className="m-2 flex h-min w-[100%] min-w-[350px] max-w-[700px] flex-col space-y-2 border p-4">
           <p>Selected image:</p>
-          {temporaryImageFile && !uploadedImagePath ? (
+          {temporaryImageFile ? (
             <Image
               width={600}
               height={600}
@@ -181,15 +216,6 @@ export default function Home() {
               alt="UI screenshot"
             />
           ) : null}
-          {uploadedImagePath && (
-            <Image
-              width={600}
-              height={600}
-              alt="UI screenshot"
-              className="mx-auto h-[60%] max-h-[400px] object-contain"
-              src={`/uploads/${uploadedImagePath}`}
-            />
-          )}
         </div>
         <div className="m-2 flex w-[100%] min-w-[350px] max-w-[700px] flex-col overflow-x-scroll border p-4">
           <p>Generated text output:</p>
