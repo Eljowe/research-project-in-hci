@@ -138,7 +138,7 @@ export default function Home() {
             <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
           </label>
         </div>
-        <div className="m-2 flex h-min max-h-[800px] w-[100%] min-w-[350px] max-w-[700px] flex-col space-y-2 border p-4">
+        <div className="m-2 flex h-min max-h-[800px] w-[100%] min-w-[350px] flex-col space-y-2 border p-4">
           <form onSubmit={handleSubmit} className="space-y-2">
             <label className="mb-2 inline-block text-neutral-900 ">Input image</label>
             <input
@@ -219,7 +219,7 @@ export default function Home() {
             </div>
           )}
         </div>
-        <div className="m-2 flex h-min w-[100%] min-w-[350px] max-w-[700px] flex-col space-y-2 border p-4">
+        <div className="m-2 flex h-min w-[100%] min-w-[350px] flex-col space-y-2 border p-4">
           <p>Selected image:</p>
           {temporaryImageFile ? (
             <Image
@@ -231,11 +231,11 @@ export default function Home() {
             />
           ) : null}
         </div>
-        <div className="m-2 flex w-[100%] min-w-[350px] max-w-[700px] flex-col border p-4">
+        <div className="m-2 flex w-[100%] min-w-[350px] flex-col border p-4">
           <p>Generated text output:</p>
           {generatedOutput && <CodeBlock code={generatedOutput} language="html" />}
         </div>
-        <div className="m-2 flex w-[100%] min-w-[350px] max-w-[700px] flex-col border p-4">
+        <div className="m-2 flex w-[100%] min-w-[350px] flex-col border p-4">
           <p>Generated layout:</p>
           {generatedOutput && <div className="mt-4" dangerouslySetInnerHTML={{ __html: generatedOutput }} />}
         </div>
