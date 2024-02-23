@@ -4,7 +4,7 @@ import Image from "next/image";
 import hljs from "highlight.js";
 import "highlight.js/styles/vs2015.css";
 
-const DEFAULT_PROMPT = `Identify every element present in the given UI screenshot. Please provide all the buttons, text fields, images, labels, and any other visible components. Return an HTML layout with styling, that would result in an UI resembling the original image with corresponding element sizes and user interface aspect ratio. You don't need to implement any javascript functionality, just the visual aspects of the UI. You can replace images, logos, and icons with same-size grey divs. It is important you include every element and text you detect in the final result and nothing additional. It is also important that the elements are the correct size, for this you should set the correct width and height styling in pixels. Estimate the device width and height in pixels and wrap the UI in a div with the same width and height in order to emulate the original aspect ratio, these values should also act as the constraining constants, no element should be wider or taller than these values. Don't use position: absolute or position: fixed for any elements. Return HTML with styling. This task is for evaluating the capabilities of LLM models in UI detection.`;
+const DEFAULT_PROMPT = `Identify every element present in the given UI screenshot. Please provide all the buttons, text fields, images, labels, and any other visible components. Return an HTML layout with styling, that would result in an UI resembling the original image with corresponding element sizes and user interface aspect ratio. You don't need to implement any javascript functionality, just the visual aspects of the UI. You can replace images, logos, and icons with same-size grey containers labeled with the component's name. It is important you include every element and text you detect in the final result and nothing additional. It is also important that the elements are the correct size, for this you should set the correct width and height styling in pixels. Estimate the device width and height in pixels as accurately and realistically as possible, and wrap the UI in a div with the same width and height in order to emulate the original aspect ratio, these values should also act as the constraining constants, no element should be wider or taller than these values. You are inspecting a mobile UI. Don't use position: absolute or position: fixed for any elements. Respond only in HTML with styling. This task is for evaluating the capabilities of LLM models in UI detection.`;
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
@@ -87,7 +87,7 @@ export default function Home() {
       formData.append("file", file);
       formData.append("prompt", prompt);
       formData.append("useLocalModel", useLocalModel.toString());
-      formData.append("maxTokens", maxTokens != null ? maxTokens.toString() : "1000");
+      formData.append("maxTokens", maxTokens != null ? maxTokens.toString() : "1600");
       formData.append("temperature", temperature != null ? temperature.toString() : "0.001");
       const response = await fetch("/api/openai", {
         method: "POST",
@@ -149,7 +149,7 @@ export default function Home() {
             />
             {developerMode && (
               <div className="flex flex-col space-y-4 pt-4">
-                <label className="inline-flex cursor-pointer items-center">
+                <label className="inline-flex w-max cursor-pointer items-center">
                   <span className="me-3 text-sm font-medium text-neutral-900">Use local model</span>
                   <input
                     type="checkbox"
