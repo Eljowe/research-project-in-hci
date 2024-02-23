@@ -23,10 +23,11 @@ export default function Home() {
     useEffect(() => {
       hljs.highlightAll();
     }, []);
-
     return (
       <pre>
-        <code className={`hljs ${language}`}>{code}</code>
+        <code id="codeblock" className={`hljs ${language}`}>
+          {code}
+        </code>
       </pre>
     );
   };
@@ -100,7 +101,6 @@ export default function Home() {
         const reader = response.body!.getReader();
         const processStream = async () => {
           while (true) {
-            // .read() returns 2 properties
             const { done, value } = await reader.read();
 
             if (done) {
@@ -123,7 +123,6 @@ export default function Home() {
   }
 
   const handleTemperatureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Parsing the input value as a float and updating the state
     const newValue: number = parseFloat(event.target.value);
     setTemperature(isNaN(newValue) ? null : newValue);
   };
@@ -138,7 +137,7 @@ export default function Home() {
             <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
           </label>
         </div>
-        <div className="m-2 flex h-min max-h-[800px] w-[100%] min-w-[350px] flex-col space-y-2 border p-4">
+        <div className="m-2 flex h-min max-h-[800px] w-[100%] min-w-[350px] flex-col space-y-2 rounded-md border border-blue-500 p-4">
           <form onSubmit={handleSubmit} className="space-y-2">
             <label className="mb-2 inline-block text-neutral-900 ">Input image</label>
             <input
@@ -157,6 +156,7 @@ export default function Home() {
                     checked={useLocalModel}
                     onChange={() => setUseLocalModel(!useLocalModel)}
                     className="peer sr-only"
+                    id="useLocalModel"
                   />
                   <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-green-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
                 </label>
@@ -167,8 +167,9 @@ export default function Home() {
                   value={maxTokens != null ? maxTokens.toString() : ""} // Convert maxTokens to a string if it's not null
                   min={1}
                   max={2000}
+                  id="maxTokens"
                   onChange={(e) => setMaxTokens(parseInt(e.target.value))}
-                  className="rounded-md border bg-inherit p-2"
+                  className="rounded-md border border-neutral-300 bg-inherit p-2"
                 />
                 <input
                   type="number"
@@ -177,14 +178,16 @@ export default function Home() {
                   min={0.001}
                   max={1}
                   step="any"
-                  onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                  className="rounded-md border bg-inherit p-2"
+                  id="temperature"
+                  onChange={handleTemperatureChange}
+                  className="rounded-md border border-neutral-300 bg-inherit p-2"
                 />
                 <textarea
                   onChange={(e) => setPrompt(e.target.value)}
                   rows={10}
                   placeholder={DEFAULT_PROMPT}
-                  className="w-[100%] rounded-md border bg-inherit p-2"
+                  id="prompt"
+                  className="w-[100%] rounded-md border border-neutral-300 bg-inherit p-2"
                 />
               </div>
             )}
@@ -219,7 +222,7 @@ export default function Home() {
             </div>
           )}
         </div>
-        <div className="m-2 flex h-min w-[100%] min-w-[350px] flex-col space-y-2 border p-4">
+        <div className="m-2 flex h-min w-[100%] min-w-[350px] flex-col space-y-2 rounded-md border p-4">
           <p>Selected image:</p>
           {temporaryImageFile ? (
             <Image
@@ -231,13 +234,14 @@ export default function Home() {
             />
           ) : null}
         </div>
-        <div className="m-2 flex w-[100%] min-w-[350px] flex-col border p-4">
-          <p>Generated text output:</p>
-          {generatedOutput && <CodeBlock code={generatedOutput} language="html" />}
-        </div>
-        <div className="m-2 flex w-[100%] min-w-[350px] flex-col border p-4">
+
+        <div className="m-2 flex w-[100%] min-w-[350px] flex-col rounded-md border p-4">
           <p>Generated layout:</p>
           {generatedOutput && <div className="mt-4" dangerouslySetInnerHTML={{ __html: generatedOutput }} />}
+        </div>
+        <div className="m-2 flex w-[100%] min-w-[350px] flex-col rounded-md border p-4">
+          <p>Generated text output:</p>
+          {generatedOutput && <CodeBlock code={generatedOutput} language="html" />}
         </div>
       </div>
     </main>
