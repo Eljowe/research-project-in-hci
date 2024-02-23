@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import hljs from "highlight.js";
 import "highlight.js/styles/vs2015.css";
+import purify from "dompurify";
 
 const DEFAULT_PROMPT = `Identify every element present in the given UI screenshot. Please provide all the buttons, text fields, images, labels, and any other visible components. Return an HTML layout with styling, that would result in an UI resembling the original image with corresponding element sizes and user interface aspect ratio. You don't need to implement any javascript functionality, just the visual aspects of the UI. You can replace images, logos, and icons with same-size grey containers labeled with the component's name. It is important you include every element and text you detect in the final result and nothing additional. It is also important that the elements are the correct size, for this you should set the correct width and height styling in pixels. Estimate the device width and height in pixels as accurately and realistically as possible, and wrap the UI in a div with the same width and height in order to emulate the original aspect ratio, these values should also act as the constraining constants, no element should be wider or taller than these values. You are inspecting a mobile UI. Don't use position: absolute or position: fixed for any elements. Respond only in HTML with styling. This task is for evaluating the capabilities of LLM models in UI detection.`;
 
@@ -47,10 +48,6 @@ export default function Home() {
     checkModel();
   }, [useLocalModel]);
 
-  const toggleDeveloperMode = () => {
-    setDeveloperMode(!developerMode);
-  };
-
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       setErrorAlert(false);
@@ -72,17 +69,15 @@ export default function Home() {
     if (file) {
       var data = null;
       if (!prompt) {
-        data = await uploadImage(file, DEFAULT_PROMPT);
+        data = await postImageAndPrompt(file, DEFAULT_PROMPT);
       } else {
-        data = await uploadImage(file, prompt);
+        data = await postImageAndPrompt(file, prompt);
       }
     }
-    setLoading(false);
   };
 
-  async function uploadImage(file: File, prompt: string) {
+  async function postImageAndPrompt(file: File, prompt: string) {
     const formData = new FormData();
-
     try {
       formData.append("file", file);
       formData.append("prompt", prompt);
@@ -109,16 +104,19 @@ export default function Home() {
               break;
             }
             let chunk = new TextDecoder("utf-8").decode(value);
-
             chunk = chunk.replace(/^data: /, "");
-
             setGeneratedOutput((prev) => (prev == null ? chunk : prev + chunk));
           }
         };
-        processStream().catch((err) => console.log("--stream error--", err));
+        processStream().catch((err) => {
+          console.log("--stream error--", err);
+          return null;
+        });
+        return generatedOutput;
       }
     } catch (error) {
       console.error("Error occured while uploading image: ", error);
+      return null;
     }
   }
 
@@ -133,7 +131,12 @@ export default function Home() {
         <div className="flex w-full flex-row justify-end px-4 py-2">
           <label className="inline-flex cursor-pointer items-center">
             <span className="me-3 text-sm font-medium text-gray-900">Developer mode</span>
-            <input type="checkbox" checked={developerMode} onChange={toggleDeveloperMode} className="peer sr-only" />
+            <input
+              type="checkbox"
+              checked={developerMode}
+              onChange={() => setDeveloperMode(!developerMode)}
+              className="peer sr-only"
+            />
             <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
           </label>
         </div>
@@ -163,10 +166,10 @@ export default function Home() {
                 {!modelOnlineStatus && useLocalModel ? <h1 className="text-red-500">Local model is offline</h1> : null}
                 <input
                   type="number"
-                  placeholder="Max tokens (1 - 2000)"
+                  placeholder="Max tokens (1 - 3000)"
                   value={maxTokens != null ? maxTokens.toString() : ""} // Convert maxTokens to a string if it's not null
                   min={1}
-                  max={2000}
+                  max={3000}
                   id="maxTokens"
                   onChange={(e) => setMaxTokens(parseInt(e.target.value))}
                   className="rounded-md border border-neutral-300 bg-inherit p-2"

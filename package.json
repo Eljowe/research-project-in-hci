@@ -12,7 +12,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/dompurify": "^3.0.5",
     "ai": "^2.2.36",
+    "dompurify": "^3.0.9",
     "highlight.js": "^11.9.0",
     "html-format": "^1.1.6",
     "next": "14.1.0",
