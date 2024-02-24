@@ -219,7 +219,7 @@ export default function Home() {
                 {!modelOnlineStatus && useLocalModel ? <h1 className="text-red-500">Local model is offline</h1> : null}
                 <input
                   type="number"
-                  placeholder="Max tokens (1 - 3000)"
+                  placeholder="Max tokens (1 - 3000, default 2000)"
                   value={maxTokens != null ? maxTokens.toString() : ""} // Convert maxTokens to a string if it's not null
                   min={1}
                   max={3000}
@@ -230,7 +230,7 @@ export default function Home() {
                 <input
                   type="number"
                   value={temperature != null ? temperature.toString() : ""}
-                  placeholder="Temperature (0.001 - 1)"
+                  placeholder="Temperature (0.001 - 1, default 0.001)"
                   min={0.001}
                   max={1}
                   step="any"
