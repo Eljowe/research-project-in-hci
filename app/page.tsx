@@ -6,7 +6,9 @@ import "highlight.js/styles/vs2015.css";
 import purify from "dompurify";
 
 const DEFAULT_PROMPT = `Identify every element present in the given UI screenshot. Please provide all the buttons, text fields, images, labels, and any other visible components. Return an HTML layout with styling, that would result in an UI resembling the original image with corresponding element sizes and user interface aspect ratio. You don't need to implement any javascript functionality, just the visual aspects of the UI. You can replace images, logos, and icons with same-size grey containers labeled with the component's name, do not add src attributes. It is important you include every element and text you detect in the final result and nothing additional. It is also important that the elements are the correct size, for this you should set the correct width and height styling in pixels. Estimate the device width and height in pixels as accurately and realistically as possible, and wrap the UI in a div with the same width and height in order to emulate the original aspect ratio, these values should also act as the constraining constants, no element should be wider or taller than these values. You are inspecting a mobile UI. Don't use position: absolute or position: fixed for any elements. Respond only in HTML with styling. This task is for evaluating the capabilities of LLM models in UI detection.`;
+const DEFAULT_ITERATIVE_PROMPT = `Your task is to identify every user interface component and element present in the given screenshot. This is an iterative process. I will give you the previous prompt and previous result. You need to improve the precision of the user interface element detection by finding any missing components in the HTML that are present in the screenshot. You also need to revalidate the estimated sizes of components and their positions. It is important every element is the correct size and in the correct position. This is a task for evaluating the user interface component detection accuracy of LLM models. Use the same guidelines as stated in the previous prompt when handling logos, labels, and images. Do not add any UI elements or components that are not found in the screenshot. Do not try to improve the design itself, only try to recreate the layout seen in the screenshot as accurately as possible. Respond only in HTML.`;
 
+//Code refactoring needed
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -19,10 +21,14 @@ export default function Home() {
   const [useLocalModel, setUseLocalModel] = useState<boolean>(false);
   const [maxTokens, setMaxTokens] = useState<number | null>(null);
   const [temperature, setTemperature] = useState<number | null>(null);
+  const [useIterativePrompt, setUseIterativePrompt] = useState<boolean>(false);
+  const [iterativePrompt, setIterativePrompt] = useState<string | null>(null);
+  const [iterativeOutput, setIterativeOutput] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if local LLM model is online
     const checkModel = async () => {
+      if (!useLocalModel) return;
       try {
         const response = await fetch("http://localhost:1234/v1/models");
         if (response.ok) {
@@ -53,6 +59,7 @@ export default function Home() {
     setErrorAlert(false);
     setLoading(true);
     setGeneratedOutput(null);
+    setIterativeOutput(null);
     if (file) {
       var data = null;
       if (!prompt) {
@@ -88,7 +95,10 @@ export default function Home() {
               console.log("stream completed");
               setLoading(false);
               hljs.highlightAll();
-              break;
+              if (useIterativePrompt) {
+                await postIterativePrompt(prompt, formData);
+              }
+              return done;
             }
             let chunk = new TextDecoder("utf-8").decode(value);
             chunk = chunk.replace(/^data: /, "");
@@ -99,10 +109,58 @@ export default function Home() {
           console.log("--stream error--", err);
           return null;
         });
-        return generatedOutput;
       }
     } catch (error) {
       console.error("Error occured while uploading image: ", error);
+      return null;
+    }
+  }
+
+  async function postIterativePrompt(prompt: string, formData: FormData) {
+    try {
+      setLoading(true);
+      console.log("Iterative prompt");
+      formData.set(
+        "prompt",
+        `${iterativePrompt ? iterativePrompt : DEFAULT_ITERATIVE_PROMPT}` +
+          " Here is the previous prompt: " +
+          prompt +
+          " Here is the previous output: " +
+          generatedOutput,
+      );
+      console.log("Form data: ", formData);
+      const response = await fetch("/api/openai", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        setErrorAlert(true);
+        setLoading(false);
+        return;
+      } else {
+        const reader = response.body!.getReader();
+        const processStream = async () => {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+              console.log("Iterative stream completed");
+              setLoading(false);
+              hljs.highlightAll();
+              return done;
+            }
+            let chunk = new TextDecoder("utf-8").decode(value);
+            chunk = chunk.replace(/^data: /, "");
+            setIterativeOutput((prev) => (prev == null ? chunk : prev + chunk));
+          }
+        };
+        processStream().catch((err) => {
+          console.log("--Iterative stream error--", err);
+          return null;
+        });
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error occured while iterative process: ", error);
       return null;
     }
   }
@@ -127,7 +185,7 @@ export default function Home() {
             <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
           </label>
         </div>
-        <div className="m-2 flex h-min max-h-[800px] w-[100%] min-w-[350px] flex-col space-y-2 rounded-md border border-blue-500 p-4">
+        <div className="m-2 flex h-min w-[100%] min-w-[350px] flex-col space-y-2 rounded-md border border-blue-500 p-4">
           <form onSubmit={handleSubmit} className="space-y-2">
             <label className="mb-2 inline-block text-neutral-900 ">Input image</label>
             <input
@@ -172,13 +230,39 @@ export default function Home() {
                   onChange={handleTemperatureChange}
                   className="rounded-md border border-neutral-300 bg-inherit p-2"
                 />
-                <textarea
-                  onChange={(e) => setPrompt(e.target.value)}
-                  rows={10}
-                  placeholder={DEFAULT_PROMPT}
-                  id="prompt"
-                  className="w-[100%] rounded-md border border-neutral-300 bg-inherit p-2"
-                />
+                <label className="inline-flex w-max cursor-pointer items-center">
+                  <span className="me-3 text-sm font-medium text-neutral-900">Use iterative prompting</span>
+                  <input
+                    type="checkbox"
+                    checked={useIterativePrompt}
+                    onChange={() => setUseIterativePrompt(!useIterativePrompt)}
+                    className="peer sr-only"
+                    id="useLocalModel"
+                  />
+                  <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-green-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
+                </label>
+                <div>
+                  <span>Prompt:</span>
+                  <textarea
+                    onChange={(e) => setPrompt(e.target.value)}
+                    rows={10}
+                    placeholder={`${DEFAULT_PROMPT}`}
+                    id="prompt"
+                    className="w-[100%] rounded-md border border-neutral-300 bg-inherit p-2"
+                  />
+                </div>
+                {useIterativePrompt && (
+                  <div>
+                    <span>Iterative prompt:</span>
+                    <textarea
+                      onChange={(e) => setIterativePrompt(e.target.value)}
+                      rows={10}
+                      placeholder={`${DEFAULT_ITERATIVE_PROMPT}`}
+                      id="prompt"
+                      className="w-[100%] rounded-md border border-neutral-300 bg-inherit p-2"
+                    />
+                  </div>
+                )}
               </div>
             )}
             {loading == true || !file ? (
@@ -242,6 +326,26 @@ export default function Home() {
           )}
         </div>
       </div>
+      {useIterativePrompt && (
+        <div className="my-2 flex w-[100%] min-w-[350px] flex-col rounded-md border p-4">
+          <p>Iterative layout:</p>
+          {iterativeOutput && (
+            <div className="mt-4" dangerouslySetInnerHTML={{ __html: purify.sanitize(iterativeOutput) }} />
+          )}
+        </div>
+      )}
+      {useIterativePrompt && (
+        <div className="my-2 flex w-[100%] min-w-[350px] flex-col rounded-md border p-4">
+          <p>Iterative text output:</p>
+          {iterativeOutput && (
+            <pre>
+              <code id="codeblock" className={`hljs html`}>
+                {purify.sanitize(iterativeOutput)}
+              </code>
+            </pre>
+          )}
+        </div>
+      )}
     </main>
   );
 }
