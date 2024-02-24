@@ -4,11 +4,12 @@ import Image from "next/image";
 import hljs from "highlight.js";
 import "highlight.js/styles/vs2015.css";
 import purify from "dompurify";
+import CollapsibleContainer from "./components/CollapsibleContainer";
 
-const OLD_DEFAULT_PROMPT = `Identify every element present in the given UI screenshot. Please provide all the buttons, text fields, images, labels, and any other visible components. Return an HTML layout with styling, that would result in an UI resembling the original image with corresponding element sizes and user interface aspect ratio. You don't need to implement any javascript functionality, just the visual aspects of the UI. You can replace images, logos, and icons with same-size grey containers labeled with the component's name, do not add src attributes. It is important you include every element and text you detect in the final result and nothing additional. It is also important that the elements are the correct size, for this you should set the correct width and height styling in pixels. Estimate the device width and height in pixels as accurately and realistically as possible, and wrap the UI in a div with the same width and height in order to emulate the original aspect ratio, these values should also act as the constraining constants, no element should be wider or taller than these values. You are inspecting a mobile UI. Don't use position: absolute or position: fixed for any elements. Respond only in HTML with styling. This task is for evaluating the capabilities of LLM models in UI detection.`;
-const OLD_DEFAULT_ITERATIVE_PROMPT = `Your task is to identify every user interface component and element present in the given screenshot. This is an iterative process. I will give you the previous prompt and previous result. You need to improve the precision of the user interface element detection by finding any missing components in the HTML that are present in the screenshot. You also need to revalidate the estimated sizes of components and their positions. It is important every element is the correct size and in the correct position. This is a task for evaluating the user interface component detection accuracy of LLM models. Use the same guidelines as stated in the previous prompt when handling logos, labels, and images. Do not add any UI elements or components that are not found in the screenshot. Do not try to improve the design itself, only try to recreate the layout seen in the screenshot as accurately as possible. Respond only in HTML.`;
-const DEFAULT_PROMPT = `Identify every visible user interface element in the provided mobile UI screenshot. Include buttons, text fields, images, labels, and any other components. Generate an HTML layout with styling, maintaining the original aspect ratio. Set the correct width and height in pixels for each element. If a search icon is detected, represent it with a same-size grey container labeled "Search Icon" (without src attributes), ensuring it's not misinterpreted as a search bar. Replace other images, logos, and icons with similar grey containers. No stretching or distortion is allowed. Estimate the device width and height realistically and use them as constraining constants. Wrap the UI in a div to emulate the original aspect ratio. Do not use position: absolute or position: fixed. Respond only in HTML with styling.`;
-const DEFAULT_ITERATIVE_PROMPT = `Iteratively refine the HTML layout generated in the previous step. Validate and reconfirm each user interface element's accuracy in terms of size and position. Identify and include any missing components that are present in the screenshot. Handle overlapping elements accurately. Maintain the original aspect ratio without stretching or distortion. Represent logos, labels, and images with same-size grey containers. Refine size estimates for enhanced precision. Avoid any references to image content or real-life scenarios. Do not introduce new UI elements. Respond only in HTML.`;
+const DEFAULT_PROMPT = `Identify every visible user interface element in the provided mobile UI screenshot, including buttons, text fields, images, labels, and other components. Generate a concise HTML layout with styling, strictly focusing on structural elements and styling attributes. Maintain the original aspect ratio and set the correct width and height in pixels for each element. If a search icon is detected, represent it with a same-size grey container labeled "Search Icon" (without src attributes), ensuring it's not misinterpreted as a search bar. Replace other images, logos, and icons with similar grey containers. Exclude any unnecessary accompanying text or comments. No stretching or distortion is allowed. Estimate the device width and height realistically and use them as constraining constants. Wrap the UI in a div to emulate the original aspect ratio. Do not use position: absolute or position: fixed. Respond only with the generated HTML code.`;
+const DEFAULT_ITERATIVE_PROMPT = `Iteratively refine the HTML layout generated in the previous step with a focus on meticulous validation. Verify and correct any positional inconsistencies in terms of size and placement for each user interface element. Identify and include any missing components present in the screenshot. Handle overlapping elements accurately. Maintain the original aspect ratio without stretching or distortion. Represent logos, labels, and images with same-size grey containers. Refine size estimates for precise alignment. Avoid any references to image content, real-life scenarios, or translation. Concentrate solely on the structure and positioning of UI elements. Do not introduce new UI elements. Respond only with the generated HTML code.
+
+Ensure that the refined HTML accurately reflects the layout of the original mobile UI screenshot. Pay careful attention to positional details and correct any discrepancies observed in the first iteration. In the generated HTML code, please use entirely unique class names for the second iteration styles to prevent any interference with the styles from the first iteration.`;
 
 //Code refactoring needed
 export default function Home() {
@@ -78,7 +79,7 @@ export default function Home() {
       formData.append("file", file);
       formData.append("prompt", prompt);
       formData.append("useLocalModel", useLocalModel.toString());
-      formData.append("maxTokens", maxTokens != null && maxTokens > 0 ? maxTokens.toString() : "1600");
+      formData.append("maxTokens", maxTokens != null && maxTokens > 0 ? maxTokens.toString() : "2000");
       formData.append("temperature", temperature != null ? temperature.toString() : "0.001");
       const response = await fetch("/api/openai", {
         method: "POST",
@@ -123,8 +124,6 @@ export default function Home() {
   async function postIterativePrompt(prompt: string, formData: FormData, fullOutput: string) {
     try {
       setLoading(true);
-      console.log("Iterative prompt");
-      console.log("fullOutput", fullOutput);
       if (fullOutput == null) {
         console.error("No previous output to use for iterative prompt");
         setLoading(false);
@@ -317,43 +316,42 @@ export default function Home() {
             />
           ) : null}
         </div>
-
-        <div className="m-2 flex w-[100%] min-w-[350px] flex-col rounded-md border p-4">
-          <p>Generated layout:</p>
-          {generatedOutput && (
-            <div className="mt-4" dangerouslySetInnerHTML={{ __html: purify.sanitize(generatedOutput) }} />
+        <div className="flex w-full flex-wrap justify-center">
+          <div
+            className={`m-2 ml-0 flex ${useIterativePrompt ? "w-[calc(50%-4px)]" : "w-full"} min-w-[350px] flex-col rounded-md border p-4`}
+          >
+            <p>Generated layout:</p>
+            {generatedOutput && (
+              <div className="mt-4" dangerouslySetInnerHTML={{ __html: purify.sanitize(generatedOutput) }} />
+            )}
+          </div>
+          {useIterativePrompt && (
+            <div className="my-2 flex w-[calc(50%-4px)] min-w-[350px] flex-col rounded-md border p-4">
+              <p>Iterative layout:</p>
+              {iterativeOutput && (
+                <div className="mt-4" dangerouslySetInnerHTML={{ __html: purify.sanitize(iterativeOutput) }} />
+              )}
+            </div>
           )}
         </div>
-        <div className="m-2 flex w-[100%] min-w-[350px] flex-col rounded-md border p-4">
-          <p>Generated text output:</p>
-          {generatedOutput && (
+        {generatedOutput && (
+          <CollapsibleContainer title="Generated text output">
             <pre>
               <code id="codeblock" className={`hljs html`}>
                 {purify.sanitize(generatedOutput)}
               </code>
-            </pre>
-          )}
-        </div>
+            </pre>{" "}
+          </CollapsibleContainer>
+        )}
       </div>
-      {useIterativePrompt && (
-        <div className="my-2 flex w-[100%] min-w-[350px] flex-col rounded-md border p-4">
-          <p>Iterative layout:</p>
-          {iterativeOutput && (
-            <div className="mt-4" dangerouslySetInnerHTML={{ __html: purify.sanitize(iterativeOutput) }} />
-          )}
-        </div>
-      )}
-      {useIterativePrompt && (
-        <div className="my-2 flex w-[100%] min-w-[350px] flex-col rounded-md border p-4">
-          <p>Iterative text output:</p>
-          {iterativeOutput && (
-            <pre>
-              <code id="codeblock" className={`hljs html`}>
-                {purify.sanitize(iterativeOutput)}
-              </code>
-            </pre>
-          )}
-        </div>
+      {iterativeOutput && (
+        <CollapsibleContainer title="Iterative text output">
+          <pre>
+            <code id="codeblock" className={`hljs html`}>
+              {purify.sanitize(iterativeOutput)}
+            </code>
+          </pre>
+        </CollapsibleContainer>
       )}
       {loading && (
         <div className="sticky bottom-5 left-[calc(100%-16px)] flex h-min w-min items-center justify-center rounded-full bg-black bg-opacity-5 p-2 backdrop-blur-sm">
