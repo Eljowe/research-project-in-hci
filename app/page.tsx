@@ -56,8 +56,11 @@ export default function Home() {
       reader.onloadend = () => {
         set({ temporaryImageFile: reader.result as string });
       };
-
-      reader.readAsDataURL(event.target.files[0]);
+      try {
+        reader.readAsDataURL(event.target.files[0]);
+      } catch (error) {
+        return;
+      }
     }
   };
 
