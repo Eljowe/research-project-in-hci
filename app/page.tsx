@@ -1,11 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
-import hljs from "highlight.js";
-import "highlight.js/styles/vs2015.css";
 import purify from "dompurify";
-import CollapsibleContainer from "./components/CollapsibleContainer";
+import CollapsibleContainer from "../components/CollapsibleContainer";
 import { useStore } from "../store/zustand";
+import { postImageAndPrompt } from "../services/promptService";
 
 const DEFAULT_PROMPT = `Identify every visible user interface element in the provided mobile UI screenshot, including buttons, text fields, images, labels, and other components. Generate a concise HTML layout with styling, strictly focusing on structural elements and styling attributes. Maintain the original aspect ratio and set the correct width and height in pixels for each element. If a search icon is detected, represent it with a same-size grey container labeled "Search Icon" (without src attributes), ensuring it's not misinterpreted as a search bar. Replace other images, logos, and icons with similar grey containers. Exclude any unnecessary accompanying text or comments. No stretching or distortion is allowed. Estimate the device width and height realistically and use them as constraining constants. Wrap the UI in a div to emulate the original aspect ratio. Do not use position: absolute or position: fixed. Respond only with the generated HTML code.`;
 const DEFAULT_ITERATIVE_PROMPT = `Iteratively refine the HTML layout generated in the previous step with a focus on meticulous validation. Verify and correct any positional inconsistencies in terms of size and placement for each user interface element. Identify and include any missing components present in the screenshot. Handle overlapping elements accurately. Maintain the original aspect ratio without stretching or distortion. Represent logos, labels, and images with same-size grey containers. Refine size estimates for precise alignment. Avoid any references to image content, real-life scenarios, or translation. Concentrate solely on the structure and positioning of UI elements. Do not introduce new UI elements. Respond only with the generated HTML code.
@@ -67,111 +66,20 @@ export default function Home() {
     set({ errorAlert: false, loading: true, generatedOutput: null, iterativeOutput: null });
     if (file) {
       var data = null;
-      if (!prompt) {
-        data = await postImageAndPrompt(file, DEFAULT_PROMPT);
-      } else {
-        data = await postImageAndPrompt(file, prompt);
-      }
+      data = await postImageAndPrompt(
+        file,
+        prompt ? prompt : DEFAULT_PROMPT,
+        iterativePrompt ? iterativePrompt : DEFAULT_ITERATIVE_PROMPT,
+        set,
+        setGeneratedOutput,
+        useLocalModel,
+        maxTokens,
+        temperature,
+        useIterativePrompt,
+        setIterativeOutput,
+      );
     }
   };
-
-  async function postImageAndPrompt(file: File, prompt: string) {
-    const formData = new FormData();
-    try {
-      formData.append("file", file);
-      formData.append("prompt", prompt);
-      formData.append("useLocalModel", useLocalModel.toString());
-      formData.append("maxTokens", maxTokens != null && maxTokens > 0 ? maxTokens.toString() : "2000");
-      formData.append("temperature", temperature != null ? temperature.toString() : "0.001");
-      const response = await fetch("/api/openai", {
-        method: "POST",
-        body: formData,
-      });
-      if (!response.ok) {
-        set({ errorAlert: true, loading: false });
-        return;
-      } else {
-        const reader = response.body!.getReader();
-        const processStream = async () => {
-          let fullOutput = "";
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-              console.log("stream completed");
-              set({ loading: false });
-              hljs.highlightAll();
-              if (useIterativePrompt) {
-                await postIterativePrompt(prompt, formData, fullOutput);
-              }
-              return done;
-            }
-            let chunk = new TextDecoder("utf-8").decode(value);
-            chunk = chunk.replace(/^data: /, "");
-            fullOutput += chunk;
-            setGeneratedOutput(chunk);
-          }
-        };
-        processStream().catch((err) => {
-          console.log("--stream error--", err);
-          return null;
-        });
-      }
-    } catch (error) {
-      console.error("Error occured while uploading image: ", error);
-      return null;
-    }
-  }
-
-  async function postIterativePrompt(prompt: string, formData: FormData, fullOutput: string) {
-    try {
-      set({ loading: true });
-      if (fullOutput == null) {
-        console.error("No previous output to use for iterative prompt");
-        set({ loading: false });
-        return;
-      }
-      formData.set(
-        "prompt",
-        `${iterativePrompt ? iterativePrompt : DEFAULT_ITERATIVE_PROMPT}` +
-          " Here is the previous prompt: " +
-          prompt +
-          " Here is the previous output: " +
-          fullOutput,
-      );
-      const response = await fetch("/api/openai", {
-        method: "POST",
-        body: formData,
-      });
-      if (!response.ok) {
-        set({ errorAlert: true, loading: false });
-        return;
-      } else {
-        const reader = response.body!.getReader();
-        const processStream = async () => {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-              console.log("Iterative stream completed");
-              set({ loading: false });
-              hljs.highlightAll();
-              return done;
-            }
-            let chunk = new TextDecoder("utf-8").decode(value);
-            chunk = chunk.replace(/^data: /, "");
-            setIterativeOutput(chunk);
-          }
-        };
-        processStream().catch((err) => {
-          console.log("--Iterative stream error--", err);
-          return null;
-        });
-      }
-    } catch (error) {
-      set({ loading: false });
-      console.error("Error occured while iterative process: ", error);
-      return null;
-    }
-  }
 
   const handleTemperatureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue: number = parseFloat(event.target.value);
