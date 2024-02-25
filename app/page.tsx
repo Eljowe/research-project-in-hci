@@ -5,6 +5,7 @@ import hljs from "highlight.js";
 import "highlight.js/styles/vs2015.css";
 import purify from "dompurify";
 import CollapsibleContainer from "./components/CollapsibleContainer";
+import { useStore } from "../store/zustand";
 
 const DEFAULT_PROMPT = `Identify every visible user interface element in the provided mobile UI screenshot, including buttons, text fields, images, labels, and other components. Generate a concise HTML layout with styling, strictly focusing on structural elements and styling attributes. Maintain the original aspect ratio and set the correct width and height in pixels for each element. If a search icon is detected, represent it with a same-size grey container labeled "Search Icon" (without src attributes), ensuring it's not misinterpreted as a search bar. Replace other images, logos, and icons with similar grey containers. Exclude any unnecessary accompanying text or comments. No stretching or distortion is allowed. Estimate the device width and height realistically and use them as constraining constants. Wrap the UI in a div to emulate the original aspect ratio. Do not use position: absolute or position: fixed. Respond only with the generated HTML code.`;
 const DEFAULT_ITERATIVE_PROMPT = `Iteratively refine the HTML layout generated in the previous step with a focus on meticulous validation. Verify and correct any positional inconsistencies in terms of size and placement for each user interface element. Identify and include any missing components present in the screenshot. Handle overlapping elements accurately. Maintain the original aspect ratio without stretching or distortion. Represent logos, labels, and images with same-size grey containers. Refine size estimates for precise alignment. Avoid any references to image content, real-life scenarios, or translation. Concentrate solely on the structure and positioning of UI elements. Do not introduce new UI elements. Respond only with the generated HTML code.
@@ -27,6 +28,7 @@ export default function Home() {
   const [useIterativePrompt, setUseIterativePrompt] = useState<boolean>(false);
   const [iterativePrompt, setIterativePrompt] = useState<string | null>(null);
   const [iterativeOutput, setIterativeOutput] = useState<string | null>(null);
+  //const { file, loading, prompt, generatedOutput, modelOnlineStatus, temporaryImageFile, errorAlert, developerMode, useLocalModel, maxTokens, temperature, useIterativePrompt, iterativePrompt, iterativeOutput } = useStore((state) => state);
 
   useEffect(() => {
     // Check if local LLM model is online
