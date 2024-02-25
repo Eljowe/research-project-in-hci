@@ -14,21 +14,25 @@ Ensure that the refined HTML accurately reflects the layout of the original mobi
 
 //Code refactoring needed
 export default function Home() {
-  const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [prompt, setPrompt] = useState<string | null>(null);
-  const [generatedOutput, setGeneratedOutput] = useState<string | null>(null);
-  const [modelOnlineStatus, setModelOnlineStatus] = useState<boolean>(false);
-  const [temporaryImageFile, setTemporaryImageFile] = useState<string | null>(null);
-  const [errorAlert, setErrorAlert] = useState<boolean>(false);
-  const [developerMode, setDeveloperMode] = useState<boolean>(false);
-  const [useLocalModel, setUseLocalModel] = useState<boolean>(false);
-  const [maxTokens, setMaxTokens] = useState<number | null>(null);
-  const [temperature, setTemperature] = useState<number | null>(null);
-  const [useIterativePrompt, setUseIterativePrompt] = useState<boolean>(false);
-  const [iterativePrompt, setIterativePrompt] = useState<string | null>(null);
-  const [iterativeOutput, setIterativeOutput] = useState<string | null>(null);
-  //const { file, loading, prompt, generatedOutput, modelOnlineStatus, temporaryImageFile, errorAlert, developerMode, useLocalModel, maxTokens, temperature, useIterativePrompt, iterativePrompt, iterativeOutput } = useStore((state) => state);
+  const {
+    file,
+    loading,
+    prompt,
+    generatedOutput,
+    modelOnlineStatus,
+    temporaryImageFile,
+    errorAlert,
+    developerMode,
+    useLocalModel,
+    maxTokens,
+    temperature,
+    useIterativePrompt,
+    iterativePrompt,
+    iterativeOutput,
+    set,
+    setGeneratedOutput,
+    setIterativeOutput,
+  } = useStore((state) => state);
 
   useEffect(() => {
     // Check if local LLM model is online
@@ -37,22 +41,21 @@ export default function Home() {
       try {
         const response = await fetch("http://localhost:1234/v1/models");
         if (response.ok) {
-          setModelOnlineStatus(true);
+          set({ modelOnlineStatus: true });
         }
       } catch (error) {
-        setModelOnlineStatus(false);
+        set({ modelOnlineStatus: false });
       }
     };
     checkModel();
-  }, [useLocalModel]);
+  }, [modelOnlineStatus, set, useLocalModel]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
-      setErrorAlert(false);
-      setFile(event.target.files[0]);
+      set({ errorAlert: false, file: event.target.files[0] });
       const reader = new FileReader();
       reader.onloadend = () => {
-        setTemporaryImageFile(reader.result as string);
+        set({ temporaryImageFile: reader.result as string });
       };
 
       reader.readAsDataURL(event.target.files[0]);
@@ -61,10 +64,7 @@ export default function Home() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setErrorAlert(false);
-    setLoading(true);
-    setGeneratedOutput(null);
-    setIterativeOutput(null);
+    set({ errorAlert: false, loading: true, generatedOutput: null, iterativeOutput: null });
     if (file) {
       var data = null;
       if (!prompt) {
@@ -88,8 +88,7 @@ export default function Home() {
         body: formData,
       });
       if (!response.ok) {
-        setErrorAlert(true);
-        setLoading(false);
+        set({ errorAlert: true, loading: false });
         return;
       } else {
         const reader = response.body!.getReader();
@@ -99,7 +98,7 @@ export default function Home() {
             const { done, value } = await reader.read();
             if (done) {
               console.log("stream completed");
-              setLoading(false);
+              set({ loading: false });
               hljs.highlightAll();
               if (useIterativePrompt) {
                 await postIterativePrompt(prompt, formData, fullOutput);
@@ -109,7 +108,7 @@ export default function Home() {
             let chunk = new TextDecoder("utf-8").decode(value);
             chunk = chunk.replace(/^data: /, "");
             fullOutput += chunk;
-            setGeneratedOutput((prev) => (prev == null ? chunk : prev + chunk));
+            setGeneratedOutput(chunk);
           }
         };
         processStream().catch((err) => {
@@ -125,10 +124,10 @@ export default function Home() {
 
   async function postIterativePrompt(prompt: string, formData: FormData, fullOutput: string) {
     try {
-      setLoading(true);
+      set({ loading: true });
       if (fullOutput == null) {
         console.error("No previous output to use for iterative prompt");
-        setLoading(false);
+        set({ loading: false });
         return;
       }
       formData.set(
@@ -144,8 +143,7 @@ export default function Home() {
         body: formData,
       });
       if (!response.ok) {
-        setErrorAlert(true);
-        setLoading(false);
+        set({ errorAlert: true, loading: false });
         return;
       } else {
         const reader = response.body!.getReader();
@@ -154,13 +152,13 @@ export default function Home() {
             const { done, value } = await reader.read();
             if (done) {
               console.log("Iterative stream completed");
-              setLoading(false);
+              set({ loading: false });
               hljs.highlightAll();
               return done;
             }
             let chunk = new TextDecoder("utf-8").decode(value);
             chunk = chunk.replace(/^data: /, "");
-            setIterativeOutput((prev) => (prev == null ? chunk : prev + chunk));
+            setIterativeOutput(chunk);
           }
         };
         processStream().catch((err) => {
@@ -169,7 +167,7 @@ export default function Home() {
         });
       }
     } catch (error) {
-      setLoading(false);
+      set({ loading: false });
       console.error("Error occured while iterative process: ", error);
       return null;
     }
@@ -177,7 +175,7 @@ export default function Home() {
 
   const handleTemperatureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue: number = parseFloat(event.target.value);
-    setTemperature(isNaN(newValue) ? null : newValue);
+    set({ temperature: isNaN(newValue) ? null : newValue });
   };
 
   return (
@@ -189,7 +187,7 @@ export default function Home() {
             <input
               type="checkbox"
               checked={developerMode}
-              onChange={() => setDeveloperMode(!developerMode)}
+              onChange={() => set({ developerMode: !developerMode })}
               className="peer sr-only"
             />
             <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
@@ -212,7 +210,7 @@ export default function Home() {
                   <input
                     type="checkbox"
                     checked={useLocalModel}
-                    onChange={() => setUseLocalModel(!useLocalModel)}
+                    onChange={() => set({ useLocalModel: !useLocalModel })}
                     className="peer sr-only"
                     id="useLocalModel"
                   />
@@ -226,7 +224,7 @@ export default function Home() {
                   min={1}
                   max={3000}
                   id="maxTokens"
-                  onChange={(e) => setMaxTokens(parseInt(e.target.value))}
+                  onChange={(e) => set({ maxTokens: parseInt(e.target.value) })}
                   className="rounded-md border border-neutral-300 bg-inherit p-2"
                 />
                 <input
@@ -245,7 +243,7 @@ export default function Home() {
                   <input
                     type="checkbox"
                     checked={useIterativePrompt}
-                    onChange={() => setUseIterativePrompt(!useIterativePrompt)}
+                    onChange={() => set({ useIterativePrompt: !useIterativePrompt })}
                     className="peer sr-only"
                     id="useLocalModel"
                   />
@@ -254,7 +252,7 @@ export default function Home() {
                 <div>
                   <span>Prompt:</span>
                   <textarea
-                    onChange={(e) => setPrompt(e.target.value)}
+                    onChange={(e) => set({ prompt: e.target.value })}
                     rows={10}
                     placeholder={`${DEFAULT_PROMPT}`}
                     id="prompt"
@@ -265,7 +263,7 @@ export default function Home() {
                   <div>
                     <span>Iterative prompt:</span>
                     <textarea
-                      onChange={(e) => setIterativePrompt(e.target.value)}
+                      onChange={(e) => set({ iterativePrompt: e.target.value })}
                       rows={10}
                       placeholder={`${DEFAULT_ITERATIVE_PROMPT}`}
                       id="prompt"

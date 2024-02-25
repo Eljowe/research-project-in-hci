@@ -16,6 +16,8 @@ type State = {
   iterativePrompt: string | null;
   iterativeOutput: string | null;
   set: (by: Partial<State>) => void;
+  setIterativeOutput: (chunk: string) => void;
+  setGeneratedOutput: (chunk: string) => void;
 };
 
 export const useStore = create<State>((set) => ({
@@ -34,4 +36,12 @@ export const useStore = create<State>((set) => ({
   iterativePrompt: null,
   iterativeOutput: null,
   set: (by) => set((state) => ({ ...state, ...by })),
+  setIterativeOutput: (chunk) =>
+    set((state) => ({
+      iterativeOutput: state.iterativeOutput == null ? chunk : state.iterativeOutput + chunk,
+    })),
+  setGeneratedOutput: (chunk) =>
+    set((state) => ({
+      generatedOutput: state.generatedOutput == null ? chunk : state.generatedOutput + chunk,
+    })),
 }));
