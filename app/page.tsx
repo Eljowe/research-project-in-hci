@@ -316,9 +316,9 @@ export default function Home() {
             />
           ) : null}
         </div>
-        <div className="flex w-full flex-wrap justify-center">
+        <div className="flex w-full flex-wrap justify-center gap-2">
           <div
-            className={`m-2 ml-0 flex ${useIterativePrompt ? "w-[calc(50%-4px)]" : "w-full"} min-w-[350px] flex-col rounded-md border p-4`}
+            className={`ml-0 flex ${useIterativePrompt ? "w-full md:w-[calc(50%-4px)]" : "w-full"} min-w-[350px] flex-col rounded-md border p-4`}
           >
             <p>Generated layout:</p>
             {generatedOutput && (
@@ -326,7 +326,7 @@ export default function Home() {
             )}
           </div>
           {useIterativePrompt && (
-            <div className="my-2 flex w-[calc(50%-4px)] min-w-[350px] flex-col rounded-md border p-4">
+            <div className="flex w-full min-w-[350px] flex-col rounded-md border p-4 md:w-[calc(50%-4px)]">
               <p>Iterative layout:</p>
               {iterativeOutput && (
                 <div className="mt-4" dangerouslySetInnerHTML={{ __html: purify.sanitize(iterativeOutput) }} />
