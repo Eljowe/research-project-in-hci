@@ -5,6 +5,7 @@ import purify from "dompurify";
 import CollapsibleContainer from "../components/CollapsibleContainer";
 import { useStore } from "../store/zustand";
 import { postImageAndPrompt } from "../services/promptService";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const DEFAULT_PROMPT = `Identify every visible user interface element in the provided mobile UI screenshot, including buttons, text fields, images, labels, and other components. Generate a concise HTML layout with styling, strictly focusing on structural elements and styling attributes. Maintain the original aspect ratio and set the correct width and height in pixels for each element. If a search icon is detected, represent it with a same-size grey container labeled "Search Icon" (without src attributes), ensuring it's not misinterpreted as a search bar. Replace other images, logos, and icons with similar grey containers. Exclude any unnecessary accompanying text or comments. No stretching or distortion is allowed. Estimate the device width and height realistically and use them as constraining constants. Wrap the UI in a div to emulate the original aspect ratio. Do not use position: absolute or position: fixed. Respond only with the generated HTML code.`;
 const DEFAULT_ITERATIVE_PROMPT = `Iteratively refine the HTML layout generated in the previous step with a focus on meticulous validation. Verify and correct any positional inconsistencies in terms of size and placement for each user interface element. Identify and include any missing components present in the screenshot. Handle overlapping elements accurately. Maintain the original aspect ratio without stretching or distortion. Represent logos, labels, and images with same-size grey containers. Refine size estimates for precise alignment. Avoid any references to image content, real-life scenarios, or translation. Concentrate solely on the structure and positioning of UI elements. Do not introduce new UI elements. Respond only with the generated HTML code.
@@ -264,18 +265,7 @@ export default function Home() {
           </pre>
         </CollapsibleContainer>
       )}
-      {loading && (
-        <div className="sticky bottom-5 left-[calc(100%-16px)] flex h-min w-min items-center justify-center rounded-full bg-black bg-opacity-5 p-2 backdrop-blur-sm">
-          <div
-            className="text-primary inline-block h-10 w-10 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-blue-600 motion-reduce:animate-[spin_1.5s_linear_infinite]"
-            role="status"
-          >
-            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-              Loading...
-            </span>
-          </div>
-        </div>
-      )}
+      <LoadingSpinner />
     </main>
   );
 }
