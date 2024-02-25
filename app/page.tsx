@@ -7,10 +7,34 @@ import { useStore } from "../store/zustand";
 import { postImageAndPrompt } from "../services/promptService";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
-const DEFAULT_PROMPT = `Identify every visible user interface element in the provided mobile UI screenshot, including buttons, text fields, images, labels, and other components. Generate a concise HTML layout with styling, strictly focusing on structural elements and styling attributes. Maintain the original aspect ratio and set the correct width and height in pixels for each element. If a search icon is detected, represent it with a same-size grey container labeled "Search Icon" (without src attributes), ensuring it's not misinterpreted as a search bar. Replace other images, logos, and icons with similar grey containers. Exclude any unnecessary accompanying text or comments. No stretching or distortion is allowed. Estimate the device width and height realistically and use them as constraining constants. Wrap the UI in a div to emulate the original aspect ratio. Do not use position: absolute or position: fixed. Respond only with the generated HTML code.`;
-const DEFAULT_ITERATIVE_PROMPT = `Iteratively refine the HTML layout generated in the previous step with a focus on meticulous validation. Verify and correct any positional inconsistencies in terms of size and placement for each user interface element. Identify and include any missing components present in the screenshot. Handle overlapping elements accurately. Maintain the original aspect ratio without stretching or distortion. Represent logos, labels, and images with same-size grey containers. Refine size estimates for precise alignment. Avoid any references to image content, real-life scenarios, or translation. Concentrate solely on the structure and positioning of UI elements. Do not introduce new UI elements. Respond only with the generated HTML code.
+const DEFAULT_PROMPT = `Identify and meticulously analyze every visible user interface element in the provided mobile UI screenshot. Include buttons, text fields, images, labels, and other components. Generate a precise HTML layout with styling, placing significant emphasis on accuracy. Strictly focus on structural elements and styling attributes.
 
-Ensure that the refined HTML accurately reflects the layout of the original mobile UI screenshot. Pay careful attention to positional details and correct any discrepancies observed in the first iteration. In the generated HTML code, please use entirely unique class names for the second iteration styles to prevent any interference with the styles from the first iteration.`;
+- Maintain the original aspect ratio and set the correct width and height in pixels for each element.
+- If a search icon is detected, represent it with a same-size grey container labeled "Search Icon" (without src attributes), ensuring it's not misinterpreted as a search bar. Replace other images, logos, and icons with similar grey containers.
+- Exclude any unnecessary accompanying text, comments, or additional HTML. The output should contain only the HTML structure and styling.
+- No stretching or distortion is allowed. Estimate the device width and height realistically and use them as constraining constants.
+- Wrap the UI in a div to emulate the original aspect ratio. Do not use 'position: absolute' or 'position: fixed' for any elements.
+- Preserve the original language of any text content without translation.
+
+Your primary focus is on delivering an HTML layout that accurately represents the structure of the original mobile UI screenshot. Respond only with the generated HTML code.
+`;
+const DEFAULT_ITERATIVE_PROMPT = `In this second iteration, your primary goal is to elevate the accuracy and fidelity of the HTML layout compared to the first attempt. Learn from any inaccuracies or deviations observed in the initial output and focus on rectifying these issues. Carefully validate and adjust the size, placement, and arrangement of each user interface element to more closely match the original mobile UI screenshot.
+
+- Correct any discrepancies in the positioning and sizing of UI components. Pay particular attention to elements that were inaccurately represented in the first attempt.
+- Ensure buttons, labels, and other components maintain their intended arrangement. Strive to capture the precise structure observed in the original screenshot.
+- Maintain the original aspect ratio without introducing stretching or distortion. Rectify any deviations from the accurate aspect ratio in the first iteration.
+- Represent logos, labels, and images with same-size grey containers. Refine size estimates for improved precision.
+- Avoid the use of 'position: absolute' for any UI element. Elements should flow naturally within the layout.
+
+Your goal is substantial improvement. While adhering to the guidelines provided in the first prompt, consider this iteration as an opportunity to refine and enhance the accuracy of the HTML layout.
+
+### Input Information:
+- **Image**: The mobile UI screenshot from the original task.
+- **Previous Prompt**: The prompt used in the first iteration.
+- **Previous HTML**: The HTML generated in the first iteration.
+
+Respond only with the generated HTML code and use entirely unique class names for the styles to prevent interference with the first iteration.
+`;
 
 //Code refactoring needed
 export default function Home() {
