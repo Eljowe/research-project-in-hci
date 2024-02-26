@@ -20,7 +20,7 @@ const DEFAULT_PROMPT = `Identify and meticulously analyze every visible user int
 
 Your primary focus is on delivering an HTML layout that accurately represents the structure of the original mobile UI screenshot. Respond only with the generated HTML code.
 `;
-const DEFAULT_ITERATIVE_PROMPT = `In this second iteration, your primary goal is to elevate the accuracy and fidelity of the HTML layout compared to the first attempt. Learn from any inaccuracies or deviations observed in the initial output and focus on rectifying these issues. Carefully validate and adjust the size, placement, and arrangement of each user interface element to more closely match the original mobile UI screenshot.
+const DEFAULT_ITERATIVE_PROMPT = `In this second iteration, your primary goal remains the substantial improvement of the HTML layout generated in the first attempt. Learn from any inaccuracies or deviations observed in the initial output and focus on rectifying these issues. Carefully validate and adjust the size, placement, and arrangement of each user interface element to more closely match the original mobile UI screenshot.
 
 - Correct any discrepancies in the positioning and sizing of UI components. Pay particular attention to elements that were inaccurately represented in the first attempt.
 - Ensure buttons, labels, and other components maintain their intended arrangement. Strive to capture the precise structure observed in the original screenshot.
@@ -28,15 +28,13 @@ const DEFAULT_ITERATIVE_PROMPT = `In this second iteration, your primary goal is
 - Represent logos, labels, and images with same-size grey containers. Refine size estimates for improved precision.
 - Avoid the use of 'position: absolute' for any UI element. Elements should flow naturally within the layout.
 
-Your goal is substantial improvement. While adhering to the guidelines provided in the first prompt, consider this iteration as an opportunity to refine and enhance the accuracy of the HTML layout.
+### Additional Guidance for Complex Styling Replication:
 
-### Input Information:
-- **Image**: The mobile UI screenshot from the original task.
-- **Previous Prompt**: The prompt used in the first iteration.
-- **Previous HTML**: The HTML generated in the first iteration.
+- Try to replicate more complex styling aspects observed in the original screenshot. Pay attention to nuanced details such as gradients, shadows, or intricate borders.
+- Capture the unique styling characteristics of individual elements, ensuring they closely match the visual intricacies of the original UI design.
+- Maintain consistent typography, including font styles, sizes, and weights.
 
-Respond only with the generated HTML code and use entirely unique class names for the styles to prevent interference with the first iteration.
-`;
+Your goal is substantial improvement, with a particular emphasis on capturing the more complex styling aspects and the possible elements that were missed on the first iteration of the original mobile UI. While adhering to the guidelines provided in the first prompt, consider this iteration as an opportunity to refine and enhance not only accuracy but also the replication of intricate design details. Respond only with the generated HTML code and use entirely unique class names for the styles to prevent interference with the first iteration.`;
 
 //Code refactoring needed
 export default function Home() {
