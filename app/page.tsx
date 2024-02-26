@@ -9,6 +9,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import RadioMenu from "@/components/RadioMenu";
 import TemperatureSlider from "@/components/TemperatureSlider";
 import TokenSlider from "@/components/TokenSlider";
+import CopyButton from "@/components/CopyButton";
 
 const DEFAULT_PROMPT = `Identify and meticulously analyze every visible user interface element in the provided mobile UI screenshot. Include buttons, text fields, images, labels, and other components. Generate a precise HTML layout with styling, placing significant emphasis on accuracy. Strictly focus on structural elements and styling attributes.
 
@@ -163,6 +164,7 @@ export default function Home() {
                     id="prompt"
                     className="w-[100%] rounded-md border border-neutral-300 bg-inherit p-2"
                   />
+                  <CopyButton textToCopy={prompt ? prompt : DEFAULT_PROMPT} />
                 </div>
                 {useIterativePrompt && (
                   <div>
@@ -174,6 +176,7 @@ export default function Home() {
                       id="prompt"
                       className="w-[100%] rounded-md border border-neutral-300 bg-inherit p-2"
                     />
+                    <CopyButton textToCopy={iterativePrompt ? iterativePrompt : DEFAULT_ITERATIVE_PROMPT} />
                   </div>
                 )}
               </div>
