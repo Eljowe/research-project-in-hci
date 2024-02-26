@@ -10,8 +10,8 @@ type State = {
   temporaryImageFile: string | null;
   errorAlert: boolean;
   developerMode: boolean;
-  maxTokens: number | null;
-  temperature: number | null;
+  maxTokens: number;
+  temperature: number;
   useIterativePrompt: boolean;
   iterativePrompt: string | null;
   iterativeOutput: string | null;
@@ -26,8 +26,8 @@ export async function postImageAndPrompt(
   iterative_prompt: string,
   set: (by: Partial<State>) => void,
   setGeneratedOutput: (chunk: string) => void,
-  maxTokens: number | null,
-  temperature: number | null,
+  maxTokens: number,
+  temperature: number,
   useIterativePrompt: boolean,
   setIterativeOutput: (chunk: string) => void,
   modelName: string,

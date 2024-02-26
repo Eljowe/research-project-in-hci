@@ -7,6 +7,8 @@ import { useStore } from "../store/zustand";
 import { postImageAndPrompt } from "../services/promptService";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import RadioMenu from "@/components/RadioMenu";
+import TemperatureSlider from "@/components/TemperatureSlider";
+import TokenSlider from "@/components/TokenSlider";
 
 const DEFAULT_PROMPT = `Identify and meticulously analyze every visible user interface element in the provided mobile UI screenshot. Include buttons, text fields, images, labels, and other components. Generate a precise HTML layout with styling, placing significant emphasis on accuracy. Strictly focus on structural elements and styling attributes.
 
@@ -108,11 +110,6 @@ export default function Home() {
     }
   };
 
-  const handleTemperatureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue: number = parseFloat(event.target.value);
-    set({ temperature: isNaN(newValue) ? null : newValue });
-  };
-
   return (
     <main className="justify-star flex min-h-screen w-[100%] flex-col bg-[#fffafa] px-4 py-2 text-black">
       <div className="flex h-min w-[100%] flex-col items-center justify-center">
@@ -144,27 +141,8 @@ export default function Home() {
                 {!modelOnlineStatus && modelName == "Local" ? (
                   <h1 className="text-red-500">Local model is offline</h1>
                 ) : null}
-                <input
-                  type="number"
-                  placeholder="Max tokens (1 - 3000, default 2000)"
-                  value={maxTokens != null ? maxTokens.toString() : ""} // Convert maxTokens to a string if it's not null
-                  min={1}
-                  max={3000}
-                  id="maxTokens"
-                  onChange={(e) => set({ maxTokens: parseInt(e.target.value) })}
-                  className="rounded-md border border-neutral-300 bg-inherit p-2"
-                />
-                <input
-                  type="number"
-                  value={temperature != null ? temperature.toString() : ""}
-                  placeholder="Temperature (0.001 - 1, default 0.001)"
-                  min={0.001}
-                  max={1}
-                  step="any"
-                  id="temperature"
-                  onChange={handleTemperatureChange}
-                  className="rounded-md border border-neutral-300 bg-inherit p-2"
-                />
+                <TokenSlider />
+                <TemperatureSlider />
                 <label className="inline-flex w-max cursor-pointer items-center">
                   <span className="me-3 text-sm font-medium text-neutral-900">Use iterative prompting</span>
                   <input
@@ -176,7 +154,6 @@ export default function Home() {
                   />
                   <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-green-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
                 </label>
-
                 <div>
                   <span>Prompt:</span>
                   <textarea

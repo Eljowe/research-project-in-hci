@@ -9,8 +9,8 @@ type State = {
   temporaryImageFile: string | null;
   errorAlert: boolean;
   developerMode: boolean;
-  maxTokens: number | null;
-  temperature: number | null;
+  maxTokens: number;
+  temperature: number;
   useIterativePrompt: boolean;
   iterativePrompt: string | null;
   iterativeOutput: string | null;
@@ -29,8 +29,8 @@ export const useStore = create<State>((set) => ({
   temporaryImageFile: null,
   errorAlert: false,
   developerMode: false,
-  maxTokens: null,
-  temperature: null,
+  maxTokens: 2000,
+  temperature: 0.001,
   useIterativePrompt: false,
   iterativePrompt: null,
   iterativeOutput: null,

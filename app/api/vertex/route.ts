@@ -77,7 +77,6 @@ export const POST = async (req: Request, res: Response) => {
 
     const aggregatedResponse = await response.response;
     // Select the text from the response
-    console.log(aggregatedResponse);
     const fullTextResponse = aggregatedResponse.candidates[0].content.parts[0].text;
 
     const streamingResponse = new Response(fullTextResponse);
