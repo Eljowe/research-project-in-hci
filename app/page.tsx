@@ -11,10 +11,12 @@ import TemperatureSlider from "@/components/TemperatureSlider";
 import TokenSlider from "@/components/TokenSlider";
 import CopyButton from "@/components/CopyButton";
 
+//For prompting inspiration: https://github.com/abi/screenshot-to-code/blob/main/backend/prompts/screenshot_system_prompts.py
+
 const DEFAULT_PROMPT = `Identify and meticulously analyze every visible user interface element in the provided mobile UI screenshot. Include buttons, text fields, images, labels, and other components. Generate a precise HTML layout with styling, placing significant emphasis on accuracy. Strictly focus on structural elements and styling attributes.
 
 - Maintain the original aspect ratio and set the correct width and height in pixels for each element.
-- If a search icon is detected, represent it with a same-size grey container labeled "Search Icon" (without src attributes), ensuring it's not misinterpreted as a search bar. Replace other images, logos, and icons with similar grey containers.
+- For images, use placeholder images from https://placehold.co with the correct sizes.
 - The output should contain only the HTML structure and styling.
 - No stretching or distortion is allowed. Estimate the device width and height realistically and use them as constraining constants.
 - Wrap the UI in a div to emulate the original aspect ratio. Do not use 'position: absolute' or 'position: fixed' for any elements.
@@ -23,6 +25,7 @@ const DEFAULT_PROMPT = `Identify and meticulously analyze every visible user int
 
 Your primary focus is on delivering an HTML layout that accurately represents the structure of the original mobile UI screenshot. Respond only with the generated HTML code.
 `;
+
 const DEFAULT_ITERATIVE_PROMPT = `In this second iteration, your primary goal remains the substantial improvement of the HTML layout generated in the first attempt. Learn from any inaccuracies or deviations observed in the initial output and focus on rectifying these issues. Carefully validate and adjust the size, placement, and arrangement of each user interface element to more closely match the original mobile UI screenshot.
 
 - Correct any discrepancies in the positioning and sizing of UI components. Pay particular attention to elements that were inaccurately represented in the first attempt.
@@ -230,14 +233,20 @@ export default function Home() {
           >
             <p>Generated layout:</p>
             {generatedOutput && (
-              <div className="mt-4" dangerouslySetInnerHTML={{ __html: purify.sanitize(generatedOutput) }} />
+              <div
+                className="mx-auto mt-4 w-[400px] rounded-md border-2 border-gray-600"
+                dangerouslySetInnerHTML={{ __html: purify.sanitize(generatedOutput) }}
+              />
             )}
           </div>
           {useIterativePrompt && (
             <div className="flex w-full min-w-[350px] flex-col rounded-md border p-4 md:w-[calc(50%-4px)]">
               <p>Iterative layout:</p>
               {iterativeOutput && (
-                <div className="mt-4" dangerouslySetInnerHTML={{ __html: purify.sanitize(iterativeOutput) }} />
+                <div
+                  className="mx-auto mt-4 w-[400px] rounded-md border-2 border-gray-600"
+                  dangerouslySetInnerHTML={{ __html: purify.sanitize(iterativeOutput) }}
+                />
               )}
             </div>
           )}

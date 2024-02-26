@@ -1,8 +1,6 @@
 import React, { useRef } from "react";
 
 const CopyButton = ({ textToCopy }: { textToCopy: string }) => {
-  const textAreaRef = useRef(null);
-
   const handleCopyClick = () => {
     try {
       navigator.clipboard.writeText(textToCopy);
