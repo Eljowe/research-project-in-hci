@@ -83,6 +83,7 @@ export async function postImageAndPrompt(
                 temperature,
                 useIterativePrompt,
                 setIterativeOutput,
+                modelName,
               );
             }
             return done;
@@ -115,6 +116,7 @@ async function postIterativePrompt(
   temperature: number | null,
   useIterativePrompt: boolean,
   setIterativeOutput: (chunk: string) => void,
+  modelName: string,
 ) {
   try {
     set({ loading: true });
@@ -127,15 +129,30 @@ async function postIterativePrompt(
       "prompt",
       iterative_prompt + " Here is the previous prompt: " + prompt + " Here is the previous output: " + fullOutput,
     );
-    const response = await fetch("/api/openai", {
-      method: "POST",
-      body: formData,
-    });
-    if (!response.ok) {
+    var response = null;
+    if (modelName === "Gemini") {
+      response = await fetch("/api/vertex", {
+        method: "POST",
+        body: formData,
+      });
+    }
+    if (modelName === "GPT") {
+      response = await fetch("/api/openai", {
+        method: "POST",
+        body: formData,
+      });
+    }
+    if (modelName === "Local") {
+      response = await fetch("/api/local", {
+        method: "POST",
+        body: formData,
+      });
+    }
+    if (!response!.ok) {
       set({ errorAlert: true, loading: false });
       return;
     } else {
-      const reader = response.body!.getReader();
+      const reader = response!.body!.getReader();
       const processStream = async () => {
         while (true) {
           const { done, value } = await reader.read();

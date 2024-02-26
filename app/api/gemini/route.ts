@@ -57,6 +57,7 @@ export const POST = async (req: Request, res: Response) => {
 
     return streamingResponse;
   } catch (error) {
+    console.log("Error: ", error);
     return new Response(JSON.stringify({ Message: "Failed" }), { status: 500 });
   }
 };

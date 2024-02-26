@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GoogleGenerativeAIStream, Message, StreamingTextResponse } from "ai";
 import { VertexAI, HarmCategory, HarmBlockThreshold } from "@google-cloud/vertexai";
 
@@ -10,11 +9,8 @@ export async function GET(request: Request) {
   });
 }
 
-export const runtime = "edge";
-
-const project = "hci-research-project";
-const location = "europe-north1";
-const textModel = "gemini-1.0-pro";
+const PROJECT_ID = "hci-research-project";
+const REGION = "europe-west3";
 const visionModel = "gemini-1.0-pro-vision";
 
 export const POST = async (req: Request, res: Response) => {
@@ -37,7 +33,7 @@ export const POST = async (req: Request, res: Response) => {
   if (!API_KEY) {
     return new Response(JSON.stringify({ error: "No API Key" }), { status: 400 });
   }
-  const vertexai = new VertexAI({ project: project, location: location });
+  const vertexai = new VertexAI({ project: PROJECT_ID, location: REGION });
   const vertexModel = vertexai.getGenerativeModel({
     model: visionModel,
     generation_config: { max_output_tokens: Number(MAX_TOKENS) },
@@ -58,20 +54,36 @@ export const POST = async (req: Request, res: Response) => {
         mimeType: "image/png",
       },
     };
-
-    const filePart = { file_data: { file_uri: `data:image/jpeg;base64,${base64Data}`, mime_type: "image/png" } };
     const request = {
-      contents: [{ role: "user", parts: [{ text: prompt.toString() }, filePart] }],
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: prompt,
+            },
+            {
+              inlineData: {
+                data: base64Data,
+                mimeType: "image/png",
+              },
+            },
+          ],
+        },
+      ],
     };
-    const response = await vertexModel.generateContentStream(request);
-
     // @ts-ignore
-    const stream = GoogleGenerativeAIStream(response);
+    const response = await vertexModel.generateContent(request);
 
-    const streamingResponse = new StreamingTextResponse(stream);
+    const aggregatedResponse = await response.response;
+    // Select the text from the response
+    const fullTextResponse = aggregatedResponse.candidates[0].content.parts[0].text;
+
+    const streamingResponse = new Response(fullTextResponse);
 
     return streamingResponse;
   } catch (error) {
+    console.log("Error: ", error);
     return new Response(JSON.stringify({ Message: "Failed" }), { status: 500 });
   }
 };
