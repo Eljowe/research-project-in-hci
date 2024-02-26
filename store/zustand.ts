@@ -9,7 +9,6 @@ type State = {
   temporaryImageFile: string | null;
   errorAlert: boolean;
   developerMode: boolean;
-  useLocalModel: boolean;
   maxTokens: number | null;
   temperature: number | null;
   useIterativePrompt: boolean;
@@ -18,6 +17,7 @@ type State = {
   set: (by: Partial<State>) => void;
   setIterativeOutput: (chunk: string) => void;
   setGeneratedOutput: (chunk: string) => void;
+  modelName: string;
 };
 
 export const useStore = create<State>((set) => ({
@@ -29,12 +29,12 @@ export const useStore = create<State>((set) => ({
   temporaryImageFile: null,
   errorAlert: false,
   developerMode: false,
-  useLocalModel: false,
   maxTokens: null,
   temperature: null,
   useIterativePrompt: false,
   iterativePrompt: null,
   iterativeOutput: null,
+  modelName: "GPT",
   set: (by) => set((state) => ({ ...state, ...by })),
   setIterativeOutput: (chunk) =>
     set((state) => ({

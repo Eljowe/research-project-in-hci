@@ -6,6 +6,7 @@ import CollapsibleContainer from "../components/CollapsibleContainer";
 import { useStore } from "../store/zustand";
 import { postImageAndPrompt } from "../services/promptService";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import RadioMenu from "@/components/RadioMenu";
 
 const DEFAULT_PROMPT = `Identify and meticulously analyze every visible user interface element in the provided mobile UI screenshot. Include buttons, text fields, images, labels, and other components. Generate a precise HTML layout with styling, placing significant emphasis on accuracy. Strictly focus on structural elements and styling attributes.
 
@@ -47,7 +48,6 @@ export default function Home() {
     temporaryImageFile,
     errorAlert,
     developerMode,
-    useLocalModel,
     maxTokens,
     temperature,
     useIterativePrompt,
@@ -56,12 +56,13 @@ export default function Home() {
     set,
     setGeneratedOutput,
     setIterativeOutput,
+    modelName,
   } = useStore((state) => state);
 
   useEffect(() => {
     // Check if local LLM model is online
     const checkModel = async () => {
-      if (!useLocalModel) return;
+      if (modelName != "Local") return;
       try {
         const response = await fetch("http://localhost:1234/v1/models");
         if (response.ok) {
@@ -72,7 +73,7 @@ export default function Home() {
       }
     };
     checkModel();
-  }, [modelOnlineStatus, set, useLocalModel]);
+  }, [modelOnlineStatus, set, modelName]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -100,11 +101,11 @@ export default function Home() {
         iterativePrompt ? iterativePrompt : DEFAULT_ITERATIVE_PROMPT,
         set,
         setGeneratedOutput,
-        useLocalModel,
         maxTokens,
         temperature,
         useIterativePrompt,
         setIterativeOutput,
+        modelName,
       );
     }
   };
@@ -141,18 +142,10 @@ export default function Home() {
             />
             {developerMode && (
               <div className="flex flex-col space-y-4 pt-4">
-                <label className="inline-flex w-max cursor-pointer items-center">
-                  <span className="me-3 text-sm font-medium text-neutral-900">Use local model</span>
-                  <input
-                    type="checkbox"
-                    checked={useLocalModel}
-                    onChange={() => set({ useLocalModel: !useLocalModel })}
-                    className="peer sr-only"
-                    id="useLocalModel"
-                  />
-                  <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-green-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
-                </label>
-                {!modelOnlineStatus && useLocalModel ? <h1 className="text-red-500">Local model is offline</h1> : null}
+                <RadioMenu />
+                {!modelOnlineStatus && modelName == "Local" ? (
+                  <h1 className="text-red-500">Local model is offline</h1>
+                ) : null}
                 <input
                   type="number"
                   placeholder="Max tokens (1 - 3000, default 2000)"
@@ -185,6 +178,7 @@ export default function Home() {
                   />
                   <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-green-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
                 </label>
+
                 <div>
                   <span>Prompt:</span>
                   <textarea

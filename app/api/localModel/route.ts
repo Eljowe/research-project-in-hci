@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   // This is a test route to check if the API is reachable
   return new Response(JSON.stringify({ body: "ok" }), {
     status: 200,
-    statusText: "Hello from route openai/GET",
+    statusText: "Hello from route localModel/GET",
   });
 }
 
@@ -20,9 +20,9 @@ export const POST = async (req: Request, res: Response) => {
   const MAX_TOKENS = formData.get("maxTokens") || 1000;
   const TEMPERATURE = formData.get("temperature") || 0.001;
 
-  const API_KEY = process.env.OPENAI_API_KEY;
-  const MODEL = "gpt-4-vision-preview";
-  const BASE_URL = "https://api.openai.com/v1";
+  const API_KEY = "not-needed";
+  const MODEL = "local-model";
+  const BASE_URL = "http://localhost:1234/v1";
 
   console.log(`
   Model: ${MODEL}

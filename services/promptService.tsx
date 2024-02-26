@@ -10,7 +10,6 @@ type State = {
   temporaryImageFile: string | null;
   errorAlert: boolean;
   developerMode: boolean;
-  useLocalModel: boolean;
   maxTokens: number | null;
   temperature: number | null;
   useIterativePrompt: boolean;
@@ -27,28 +26,43 @@ export async function postImageAndPrompt(
   iterative_prompt: string,
   set: (by: Partial<State>) => void,
   setGeneratedOutput: (chunk: string) => void,
-  useLocalModel: boolean,
   maxTokens: number | null,
   temperature: number | null,
   useIterativePrompt: boolean,
   setIterativeOutput: (chunk: string) => void,
+  modelName: string,
 ) {
   const formData = new FormData();
   try {
     formData.append("file", file);
     formData.append("prompt", prompt);
-    formData.append("useLocalModel", useLocalModel.toString());
     formData.append("maxTokens", maxTokens != null && maxTokens > 0 ? maxTokens.toString() : "2000");
     formData.append("temperature", temperature != null ? temperature.toString() : "0.001");
-    const response = await fetch("/api/openai", {
-      method: "POST",
-      body: formData,
-    });
-    if (!response.ok) {
+    var response = null;
+    if (modelName === "Gemini") {
+      response = await fetch("/api/vertex", {
+        method: "POST",
+        body: formData,
+      });
+    }
+    if (modelName === "GPT") {
+      console.log("Using GPT model");
+      response = await fetch("/api/openai", {
+        method: "POST",
+        body: formData,
+      });
+    }
+    if (modelName === "Local") {
+      response = await fetch("/api/local", {
+        method: "POST",
+        body: formData,
+      });
+    }
+    if (!response!.ok) {
       set({ errorAlert: true, loading: false });
       return;
     } else {
-      const reader = response.body!.getReader();
+      const reader = response!.body!.getReader();
       const processStream = async () => {
         let fullOutput = "";
         while (true) {
@@ -65,7 +79,6 @@ export async function postImageAndPrompt(
                 iterative_prompt,
                 set,
                 setGeneratedOutput,
-                useLocalModel,
                 maxTokens,
                 temperature,
                 useIterativePrompt,
@@ -98,7 +111,6 @@ async function postIterativePrompt(
   iterative_prompt: string,
   set: (by: Partial<State>) => void,
   setGeneratedOutput: (chunk: string) => void,
-  useLocalModel: boolean,
   maxTokens: number | null,
   temperature: number | null,
   useIterativePrompt: boolean,
