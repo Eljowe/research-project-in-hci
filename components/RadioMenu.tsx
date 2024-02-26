@@ -8,8 +8,8 @@ const RadioMenu = () => {
   };
 
   return (
-    <div className="grid w-full grid-cols-4 gap-2 rounded-xl bg-gray-200 p-2">
-      <div className="mb-4 flex items-center">
+    <div className="flex w-full flex-col items-start justify-center gap-4 rounded-md border border-neutral-300 px-2 py-4">
+      <div className="flex items-center">
         <input
           id="default-radio-1"
           type="radio"
@@ -17,13 +17,13 @@ const RadioMenu = () => {
           checked={modelName === "GPT"}
           name="default-radio"
           onChange={handleChange}
-          className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+          className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500  dark:focus:ring-blue-600"
         />
-        <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+        <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium text-gray-900 ">
           GPT-4-Vision
         </label>
       </div>
-      <div className="mb-4 flex items-center">
+      <div className="flex items-center">
         <input
           id="default-radio-1"
           type="radio"
@@ -31,9 +31,9 @@ const RadioMenu = () => {
           checked={modelName === "Local"}
           name="default-radio"
           onChange={handleChange}
-          className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+          className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500  dark:focus:ring-blue-600"
         />
-        <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+        <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium text-gray-900 ">
           Local
         </label>
       </div>
@@ -45,13 +45,12 @@ const RadioMenu = () => {
           value="Gemini"
           name="default-radio"
           onChange={handleChange}
-          className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+          className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500  dark:focus:ring-blue-600"
         />
-        <label htmlFor="default-radio-2" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+        <label htmlFor="default-radio-2" className="ms-2 text-sm font-medium text-gray-900 ">
           Gemini
         </label>
       </div>
-      <span>selected: {modelName}</span>
     </div>
   );
 };

@@ -16,6 +16,7 @@ const DEFAULT_PROMPT = `Identify and meticulously analyze every visible user int
 - No stretching or distortion is allowed. Estimate the device width and height realistically and use them as constraining constants.
 - Wrap the UI in a div to emulate the original aspect ratio. Do not use 'position: absolute' or 'position: fixed' for any elements.
 - Preserve the original language of any text content without translation.
+- Use custom class names for the HTML elements to prevent interference with future iterations. Append "first-iteration-" as a prefix to each class name.
 
 Your primary focus is on delivering an HTML layout that accurately represents the structure of the original mobile UI screenshot. Respond only with the generated HTML code.
 `;
