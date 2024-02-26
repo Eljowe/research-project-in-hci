@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 export const runtime = "edge";
 
 export const POST = async (req: Request, res: Response) => {
-  // This is the main route to handle the image upload and prompt submission
+  // This is the route for testing GoogleGenerativeAI, which is region locked in Europe
   const formData = await req.formData();
 
   const file = formData.get("file") as File;

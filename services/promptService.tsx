@@ -53,7 +53,7 @@ export async function postImageAndPrompt(
       });
     }
     if (modelName === "Local") {
-      response = await fetch("/api/local", {
+      response = await fetch("/api/localModel", {
         method: "POST",
         body: formData,
       });
@@ -143,7 +143,7 @@ async function postIterativePrompt(
       });
     }
     if (modelName === "Local") {
-      response = await fetch("/api/local", {
+      response = await fetch("/api/localModel", {
         method: "POST",
         body: formData,
       });
