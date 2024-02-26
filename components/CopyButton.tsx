@@ -14,7 +14,7 @@ const CopyButton = ({ textToCopy }: { textToCopy: string }) => {
 
   return (
     <div>
-      <button type="button" className=" my-2 rounded bg-neutral-600 p-2 text-white" onClick={handleCopyClick}>
+      <button type="button" className="mb-2 text-blue-600" onClick={handleCopyClick}>
         Copy Prompt
       </button>
     </div>

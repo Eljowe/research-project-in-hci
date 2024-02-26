@@ -15,10 +15,10 @@ const DEFAULT_PROMPT = `Identify and meticulously analyze every visible user int
 
 - Maintain the original aspect ratio and set the correct width and height in pixels for each element.
 - If a search icon is detected, represent it with a same-size grey container labeled "Search Icon" (without src attributes), ensuring it's not misinterpreted as a search bar. Replace other images, logos, and icons with similar grey containers.
-- Exclude any unnecessary accompanying text, comments, or additional HTML. The output should contain only the HTML structure and styling.
+- The output should contain only the HTML structure and styling.
 - No stretching or distortion is allowed. Estimate the device width and height realistically and use them as constraining constants.
 - Wrap the UI in a div to emulate the original aspect ratio. Do not use 'position: absolute' or 'position: fixed' for any elements.
-- Preserve the original language of any text content without translation.
+- Preserve the original language of any text content without translation. All text found in the image should be included in the response.
 - Use custom class names for the HTML elements to prevent interference with future iterations. Append "first-iteration-" as a prefix to each class name.
 
 Your primary focus is on delivering an HTML layout that accurately represents the structure of the original mobile UI screenshot. Respond only with the generated HTML code.
@@ -28,7 +28,7 @@ const DEFAULT_ITERATIVE_PROMPT = `In this second iteration, your primary goal re
 - Correct any discrepancies in the positioning and sizing of UI components. Pay particular attention to elements that were inaccurately represented in the first attempt.
 - Ensure buttons, labels, and other components maintain their intended arrangement. Strive to capture the precise structure observed in the original screenshot.
 - Maintain the original aspect ratio without introducing stretching or distortion. Rectify any deviations from the accurate aspect ratio in the first iteration.
-- Represent logos, labels, and images with same-size grey containers. Refine size estimates for improved precision.
+- Refine size estimates for all elements for improved precision.
 - Avoid the use of 'position: absolute' for any UI element. Elements should flow naturally within the layout.
 
 ### Additional Guidance for Complex Styling Replication:
