@@ -104,6 +104,7 @@ export default function Home() {
         maxTokens,
         temperature,
         useIterativePrompt,
+        setIterativeOutput,
         modelName,
       );
     }

@@ -29,6 +29,7 @@ export async function postImageAndPrompt(
   maxTokens: number | null,
   temperature: number | null,
   useIterativePrompt: boolean,
+  setIterativeOutput: (chunk: string) => void,
   modelName: string,
 ) {
   const formData = new FormData();
@@ -77,7 +78,7 @@ export async function postImageAndPrompt(
                 fullOutput,
                 iterative_prompt,
                 set,
-                setGeneratedOutput,
+                setIterativeOutput,
                 modelName,
               );
             }
