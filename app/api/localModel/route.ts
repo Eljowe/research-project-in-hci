@@ -32,7 +32,7 @@ export const POST = async (req: Request, res: Response) => {
 
 `);
 
-  const openai = new OpenAI({ apiKey: API_KEY, baseURL: BASE_URL });
+  const openai = new OpenAI({ apiKey: API_KEY, baseURL: BASE_URL, timeout: 20 * 60 * 1000 });
 
   if (!file || !prompt) {
     console.log("No files or prompt received.");

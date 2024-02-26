@@ -95,8 +95,7 @@ export default function Home() {
     event.preventDefault();
     set({ errorAlert: false, loading: true, generatedOutput: null, iterativeOutput: null });
     if (file) {
-      var data = null;
-      data = await postImageAndPrompt(
+      await postImageAndPrompt(
         file,
         prompt ? prompt : DEFAULT_PROMPT,
         iterativePrompt ? iterativePrompt : DEFAULT_ITERATIVE_PROMPT,
@@ -105,7 +104,6 @@ export default function Home() {
         maxTokens,
         temperature,
         useIterativePrompt,
-        setIterativeOutput,
         modelName,
       );
     }
