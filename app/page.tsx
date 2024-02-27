@@ -25,7 +25,21 @@ const DEFAULT_PROMPT = `Identify and meticulously analyze every visible user int
 - Preserve the original language of any text content without translation. All text found in the image should be included in the response.
 - Use custom class names for the HTML elements to prevent interference with future iterations. Append "first-iteration-" as a prefix to each class name.
 
-Your primary focus is on delivering an HTML layout that accurately represents the structure of the original mobile UI screenshot. Respond only with the generated HTML code.
+Your primary focus is on delivering an HTML layout that accurately represents the structure of the original mobile UI screenshot. Respond only with the generated HTML code, do not add HTML markdown or any other reasoning explanations after the code blocks.
+`;
+
+const TEST_TAILWIND_PROMPT = `Identify and meticulously analyze every visible user interface element in the provided mobile UI screenshot. Include buttons, text fields, images, labels, and other components. Generate a precise HTML layout with styling, placing significant emphasis on accuracy. Strictly focus on structural elements and styling attributes.
+
+- Use Tailwind for styling.
+- Use this script to include Tailwind: <script src="https://cdn.tailwindcss.com"></script>
+- Maintain the original aspect ratio and set the correct width and height in pixels for each element.
+- For images, use placeholder images from https://placehold.co with the correct sizes.
+- The output should contain only the HTML structure and styling.
+- No stretching or distortion is allowed. Estimate the device width and height realistically and use them as constraining constants.
+- Wrap the UI in a div to emulate the original aspect ratio. Do not use 'position: absolute' or 'position: fixed' for any elements.
+- Preserve the original language of any text content without translation. All text found in the image should be included in the response.
+
+Your primary focus is on delivering an HTML layout that accurately represents the structure of the original mobile UI screenshot. Respond only with the generated HTML code, do not add HTML markdown or any other reasoning explanations after the code blocks.
 `;
 
 const DEFAULT_ITERATIVE_PROMPT = `In this second iteration, your primary goal remains the substantial improvement of the HTML layout generated in the first attempt. Learn from any inaccuracies or deviations observed in the initial output and focus on rectifying these issues. Carefully validate and adjust the size, placement, and arrangement of each user interface element to more closely match the original mobile UI screenshot.
