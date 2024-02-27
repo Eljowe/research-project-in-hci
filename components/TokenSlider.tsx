@@ -16,6 +16,7 @@ const TokenSlider = () => {
         value={maxTokens}
         onChange={(e) => set({ maxTokens: Number(e.target.value) })}
         className="w-full max-w-[400px]"
+        id="maxTokens"
       />
       <div className="flex justify-between">
         <span>{maxTokens}</span>

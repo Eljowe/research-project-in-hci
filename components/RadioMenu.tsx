@@ -25,7 +25,7 @@ const RadioMenu = () => {
       </div>
       <div className="flex items-center">
         <input
-          id="default-radio-1"
+          id="default-radio-2"
           type="radio"
           value="Local"
           checked={modelName === "Local"}
@@ -40,7 +40,7 @@ const RadioMenu = () => {
       <div className="flex items-center">
         <input
           checked={modelName === "Gemini"}
-          id="default-radio-2"
+          id="default-radio-3"
           type="radio"
           value="Gemini"
           name="default-radio"

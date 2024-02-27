@@ -16,6 +16,7 @@ const TemperatureSlider = () => {
         value={temperature}
         onChange={(e) => set({ temperature: Number(e.target.value) })}
         className="w-full max-w-[400px]"
+        id="temperature"
       />
       <div className="flex justify-between">
         <span>{temperature}</span>
