@@ -24,6 +24,7 @@ const DEFAULT_PROMPT = `Identify and meticulously analyze every visible user int
 - Use custom class names for the HTML elements to prevent interference with future iterations. Append "first-iteration-" as a prefix to each class name.
 
 Your primary focus is on delivering an HTML layout that accurately represents the structure of the original mobile UI screenshot. Respond only with the generated HTML code.
+Your responses should only be code, without explanation or formatting.
 `;
 
 const DEFAULT_ITERATIVE_PROMPT = `In this second iteration, your primary goal remains the substantial improvement of the HTML layout generated in the first attempt. Learn from any inaccuracies or deviations observed in the initial output and focus on rectifying these issues. Carefully validate and adjust the size, placement, and arrangement of each user interface element to more closely match the original mobile UI screenshot.
