@@ -56,6 +56,8 @@ export const useStore = create<State>()(
         modelName: state.modelName,
         temperature: state.temperature,
         useIterativePrompt: state.useIterativePrompt,
+        prompt: state.prompt,
+        iterativePrompt: state.iterativePrompt,
       }),
     },
   ),

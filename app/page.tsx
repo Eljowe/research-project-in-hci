@@ -10,6 +10,8 @@ import RadioMenu from "@/components/RadioMenu";
 import TemperatureSlider from "@/components/TemperatureSlider";
 import TokenSlider from "@/components/TokenSlider";
 import CopyButton from "@/components/CopyButton";
+import ClearPromptButton from "@/components/ClearPromptButton";
+import InsertDefaultPromptButton from "@/components/InsertDefaultPromptButton";
 
 //For prompting inspiration: https://github.com/abi/screenshot-to-code/blob/main/backend/prompts/screenshot_system_prompts.py
 
@@ -161,25 +163,35 @@ export default function Home() {
                 <div>
                   <span>Prompt:</span>
                   <textarea
+                    value={prompt ? prompt : ""}
                     onChange={(e) => set({ prompt: e.target.value })}
                     rows={10}
                     placeholder={`${DEFAULT_PROMPT}`}
                     id="prompt"
                     className="w-[100%] rounded-md border border-neutral-300 bg-inherit p-2"
                   />
-                  <CopyButton textToCopy={prompt ? prompt : DEFAULT_PROMPT} />
+                  <div className="flex divide-x-2">
+                    <InsertDefaultPromptButton PROMPT={DEFAULT_PROMPT} promptType={"first"} />
+                    <CopyButton textToCopy={prompt ? prompt : DEFAULT_PROMPT} />
+                    <ClearPromptButton promptType={"first"} />
+                  </div>
                 </div>
                 {useIterativePrompt && (
                   <div>
                     <span>Iterative prompt:</span>
                     <textarea
+                      value={iterativePrompt ? iterativePrompt : ""}
                       onChange={(e) => set({ iterativePrompt: e.target.value })}
                       rows={10}
                       placeholder={`${DEFAULT_ITERATIVE_PROMPT}`}
                       id="prompt"
                       className="w-[100%] rounded-md border border-neutral-300 bg-inherit p-2"
                     />
-                    <CopyButton textToCopy={iterativePrompt ? iterativePrompt : DEFAULT_ITERATIVE_PROMPT} />
+                    <div className="flex divide-x-2">
+                      <InsertDefaultPromptButton PROMPT={DEFAULT_ITERATIVE_PROMPT} promptType={"iterative"} />
+                      <CopyButton textToCopy={iterativePrompt ? iterativePrompt : DEFAULT_ITERATIVE_PROMPT} />
+                      <ClearPromptButton promptType={"iterative"} />
+                    </div>
                   </div>
                 )}
               </div>
@@ -257,7 +269,7 @@ export default function Home() {
               <code id="codeblock" className={`hljs html`}>
                 {purify.sanitize(generatedOutput)}
               </code>
-            </pre>{" "}
+            </pre>
           </CollapsibleContainer>
         )}
       </div>
