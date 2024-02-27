@@ -21,28 +21,42 @@ type State = {
   modelName: string;
 };
 
-export const useStore = create<State>((set) => ({
-  file: null,
-  loading: false,
-  prompt: null,
-  generatedOutput: null,
-  modelOnlineStatus: false,
-  temporaryImageFile: null,
-  errorAlert: false,
-  developerMode: false,
-  maxTokens: 2000,
-  temperature: 0.001,
-  useIterativePrompt: false,
-  iterativePrompt: null,
-  iterativeOutput: null,
-  modelName: "GPT",
-  set: (by) => set((state) => ({ ...state, ...by })),
-  setIterativeOutput: (chunk) =>
-    set((state) => ({
-      iterativeOutput: state.iterativeOutput == null ? chunk : state.iterativeOutput + chunk,
-    })),
-  setGeneratedOutput: (chunk) =>
-    set((state) => ({
-      generatedOutput: state.generatedOutput == null ? chunk : state.generatedOutput + chunk,
-    })),
-}));
+export const useStore = create<State>()(
+  persist(
+    (set) => ({
+      file: null,
+      loading: false,
+      prompt: null,
+      generatedOutput: null,
+      modelOnlineStatus: false,
+      temporaryImageFile: null,
+      errorAlert: false,
+      developerMode: false,
+      maxTokens: 2000,
+      temperature: 0.001,
+      useIterativePrompt: false,
+      iterativePrompt: null,
+      iterativeOutput: null,
+      modelName: "GPT",
+      set: (by) => set((state) => ({ ...state, ...by })),
+      setIterativeOutput: (chunk) =>
+        set((state) => ({
+          iterativeOutput: state.iterativeOutput == null ? chunk : state.iterativeOutput + chunk,
+        })),
+      setGeneratedOutput: (chunk) =>
+        set((state) => ({
+          generatedOutput: state.generatedOutput == null ? chunk : state.generatedOutput + chunk,
+        })),
+    }),
+    {
+      name: "zustand",
+      partialize: (state: State) => ({
+        developerMode: state.developerMode,
+        maxTokens: state.maxTokens,
+        modelName: state.modelName,
+        temperature: state.temperature,
+        useIterativePrompt: state.useIterativePrompt,
+      }),
+    },
+  ),
+);
