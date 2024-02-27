@@ -1,4 +1,4 @@
-import { useStore } from "../store/zustand";
+import { useStore } from "../app/store/zustand";
 
 const TokenSlider = () => {
   const { maxTokens, set } = useStore((state) => state);

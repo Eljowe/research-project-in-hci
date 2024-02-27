@@ -1,4 +1,4 @@
-import { useStore } from "@/store/zustand";
+import { useStore } from "@/app/store/zustand";
 
 export default function LoadingSpinner() {
   const loading = useStore((state) => state.loading);
