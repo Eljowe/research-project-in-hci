@@ -40,6 +40,11 @@ export const POST = async (req: Request, res: Response) => {
   }
 
   try {
+    const localModelResponse = await fetch("http://localhost:1234/v1/models");
+    if (!localModelResponse.ok) {
+      return new Response(JSON.stringify({ error: "Local model not found" }), { status: 404 });
+    }
+
     const buffer = Buffer.from(await file.arrayBuffer());
     const base64Data = buffer.toString("base64");
 
@@ -66,7 +71,6 @@ export const POST = async (req: Request, res: Response) => {
     const stream = OpenAIStream(response);
 
     const streamingResponse = new StreamingTextResponse(stream);
-
     return streamingResponse;
   } catch (error) {
     return new Response(JSON.stringify({ Message: "Failed" }), { status: 500 });
