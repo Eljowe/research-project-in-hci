@@ -19,6 +19,7 @@ type State = {
   setIterativeOutput: (chunk: string) => void;
   setGeneratedOutput: (chunk: string) => void;
   modelName: string;
+  apiKey: string | null;
 };
 
 export const useStore = create<State>()(
@@ -38,6 +39,7 @@ export const useStore = create<State>()(
       iterativePrompt: null,
       iterativeOutput: null,
       modelName: "GPT",
+      apiKey: null,
       set: (by) => set((state) => ({ ...state, ...by })),
       setIterativeOutput: (chunk) =>
         set((state) => ({
@@ -49,6 +51,7 @@ export const useStore = create<State>()(
         })),
     }),
     {
+      // These are the keys that will be stored in localStorage
       name: "zustand",
       partialize: (state: State) => ({
         developerMode: state.developerMode,
@@ -58,6 +61,7 @@ export const useStore = create<State>()(
         useIterativePrompt: state.useIterativePrompt,
         prompt: state.prompt,
         iterativePrompt: state.iterativePrompt,
+        apiKey: state.apiKey,
       }),
     },
   ),
