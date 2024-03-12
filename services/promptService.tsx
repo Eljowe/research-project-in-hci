@@ -15,6 +15,7 @@ type State = {
   useIterativePrompt: boolean;
   iterativePrompt: string | null;
   iterativeOutput: string | null;
+  apiKey: string | null;
   set: (by: Partial<State>) => void;
   setIterativeOutput: (chunk: string) => void;
   setGeneratedOutput: (chunk: string) => void;
@@ -31,6 +32,7 @@ export async function postImageAndPrompt(
   useIterativePrompt: boolean,
   setIterativeOutput: (chunk: string) => void,
   modelName: string,
+  apiKey: string | null,
 ) {
   const formData = new FormData();
   try {
@@ -38,6 +40,7 @@ export async function postImageAndPrompt(
     formData.append("prompt", prompt);
     formData.append("maxTokens", maxTokens != null && maxTokens > 0 ? maxTokens.toString() : "2000");
     formData.append("temperature", temperature != null ? temperature.toString() : "0.001");
+    formData.append("apiKey", apiKey != null ? apiKey : "null");
     var response = null;
     if (modelName === "Gemini") {
       response = await fetch("/api/vertex", {
@@ -80,6 +83,7 @@ export async function postImageAndPrompt(
                 set,
                 setIterativeOutput,
                 modelName,
+                apiKey,
               );
             }
             return done;
@@ -109,6 +113,7 @@ async function postIterativePrompt(
   set: (by: Partial<State>) => void,
   setIterativeOutput: (chunk: string) => void,
   modelName: string,
+  apiKey: string | null,
 ) {
   try {
     set({ loading: true });

@@ -19,18 +19,23 @@ export const POST = async (req: Request, res: Response) => {
   const prompt = formData.get("prompt");
   const MAX_TOKENS = formData.get("maxTokens") || 1000;
   const TEMPERATURE = formData.get("temperature") || 0.001;
-
-  const API_KEY = process.env.OPENAI_API_KEY;
+  var API_KEY = process.env.OPENAI_API_KEY;
   const MODEL = "gpt-4-vision-preview";
   const BASE_URL = "https://api.openai.com/v1";
+  if (formData.get("apiKey") != "null") {
+    API_KEY = formData.get("apiKey")?.toString();
+  }
+  console.log("HEI_API: " + API_KEY);
+  if (API_KEY === null) {
+    return new Response(JSON.stringify({ error: "No API Key found" }), { status: 400 });
+  }
 
   console.log(`
-  Model: ${MODEL}
-  base URL: ${BASE_URL}
-  Max Tokens: ${MAX_TOKENS}
-  Temperature: ${TEMPERATURE}
-
-`);
+    Model: ${MODEL}
+    base URL: ${BASE_URL}
+    Max Tokens: ${MAX_TOKENS}
+    Temperature: ${TEMPERATURE}
+  `);
 
   const openai = new OpenAI({ apiKey: API_KEY, baseURL: BASE_URL });
 

@@ -78,6 +78,7 @@ export default function Home() {
     setGeneratedOutput,
     setIterativeOutput,
     modelName,
+    apiKey,
   } = useStore((state) => state);
 
   useEffect(() => {
@@ -126,6 +127,7 @@ export default function Home() {
         useIterativePrompt,
         setIterativeOutput,
         modelName,
+        apiKey,
       );
     }
   };
@@ -145,9 +147,14 @@ export default function Home() {
             <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
           </label>
         </div>
-        <div>
-          <span>API Key:</span>
-          <input type="text" onChange={(e) => set({ apiKey: e.target.value })} />
+        <div className="w-full pl-4">
+          <span>API Key: </span>
+          <input
+            type="text"
+            value={apiKey ? apiKey : ""}
+            className="rounded-md border border-neutral-300 bg-inherit px-2"
+            onChange={(e) => set({ apiKey: e.target.value })}
+          />
         </div>
         <div className="m-2 flex h-min w-[100%] min-w-[350px] flex-col space-y-2 rounded-md border border-blue-500 p-4">
           <form onSubmit={handleSubmit} className="space-y-2">
