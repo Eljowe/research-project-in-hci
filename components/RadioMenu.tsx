@@ -33,7 +33,7 @@ const RadioMenu = () => {
           onChange={handleChange}
           className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500  dark:focus:ring-blue-600"
         />
-        <label htmlFor="default-radio-1" className="ms-2 text-sm font-medium text-gray-900 ">
+        <label htmlFor="default-radio-2" className="ms-2 text-sm font-medium text-gray-900 ">
           Local
         </label>
       </div>
@@ -47,7 +47,7 @@ const RadioMenu = () => {
           onChange={handleChange}
           className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500  dark:focus:ring-blue-600"
         />
-        <label htmlFor="default-radio-2" className="ms-2 text-sm font-medium text-gray-900 ">
+        <label htmlFor="default-radio-3" className="ms-2 text-sm font-medium text-gray-900 ">
           Gemini
         </label>
       </div>
