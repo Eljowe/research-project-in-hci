@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import Image from "next/image";
 import purify from "dompurify";
 import CollapsibleContainer from "../components/CollapsibleContainer";
@@ -13,7 +13,7 @@ import CopyButton from "@/components/CopyButton";
 import ClearPromptButton from "@/components/ClearPromptButton";
 import InsertDefaultPromptButton from "@/components/InsertDefaultPromptButton";
 import JSONRadioMenu from "@/components/JSONRadioMenu";
-import { json } from "stream/consumers";
+import { generateBoundingBoxImage } from "@/services/generateBoundingBoxImage";
 
 //For prompting inspiration: https://github.com/abi/screenshot-to-code/blob/main/backend/prompts/screenshot_system_prompts.py
 
@@ -86,6 +86,7 @@ export default function Home() {
     apiKey,
     outputMode,
     jsonOutput,
+    boundingBoxImageFile,
   } = useStore((state) => state);
 
   useEffect(() => {
@@ -104,6 +105,15 @@ export default function Home() {
     checkModel();
   }, [modelOnlineStatus, set, modelName]);
 
+  useEffect(() => {
+    // trigger when jsonOutput changes
+    console.log("Json output changed!");
+    if (jsonOutput && temporaryImageFile) {
+      console.log("Json output got updated!");
+      generateBoundingBoxImage(temporaryImageFile, jsonOutput, set);
+    }
+  }, [jsonOutput]);
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       set({ errorAlert: false, file: event.target.files[0] });
@@ -121,7 +131,7 @@ export default function Home() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    set({ errorAlert: false, loading: true, generatedOutput: null, iterativeOutput: null });
+    set({ errorAlert: false, loading: true, generatedOutput: null, iterativeOutput: null, jsonOutput: null });
     if (file) {
       await postImageAndPrompt(
         file,
@@ -279,6 +289,20 @@ export default function Home() {
             />
           ) : null}
         </div>
+        {outputMode === "JSON" && (
+          <div className="flex w-full min-w-[350px] flex-col rounded-md border p-4">
+            <p>Generated bounding box image:</p>
+            {boundingBoxImageFile ? (
+              <Image
+                width={600}
+                height={600}
+                src={boundingBoxImageFile}
+                className="mx-auto h-[60%] max-h-[400px] object-contain"
+                alt="Bounding box image"
+              />
+            ) : null}
+          </div>
+        )}
         {outputMode === "HTML" && (
           <div className="flex w-full flex-wrap justify-center gap-2">
             <div

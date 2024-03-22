@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type State = {
+export type State = {
   file: File | null;
   loading: boolean;
   prompt: string | null;
@@ -22,6 +22,7 @@ type State = {
   apiKey: string | null;
   outputMode: string;
   jsonOutput: string | null;
+  boundingBoxImageFile: string | null;
 };
 
 export const useStore = create<State>()(
@@ -44,6 +45,7 @@ export const useStore = create<State>()(
       apiKey: null,
       outputMode: "JSON",
       jsonOutput: null,
+      boundingBoxImageFile: null,
       set: (by) => set((state) => ({ ...state, ...by })),
       setIterativeOutput: (chunk) =>
         set((state) => ({
