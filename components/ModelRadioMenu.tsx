@@ -1,6 +1,6 @@
 import { useStore } from "../app/store/zustand";
 
-const RadioMenu = () => {
+const ModelRadioMenu = () => {
   const { modelName, set } = useStore((state) => state);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,4 +55,4 @@ const RadioMenu = () => {
   );
 };
 
-export default RadioMenu;
+export default ModelRadioMenu;

@@ -19,6 +19,8 @@ type State = {
   set: (by: Partial<State>) => void;
   setIterativeOutput: (chunk: string) => void;
   setGeneratedOutput: (chunk: string) => void;
+  jsonOutput: string | null;
+  outputMode: string;
 };
 
 export async function postImageAndPrompt(
@@ -33,6 +35,8 @@ export async function postImageAndPrompt(
   setIterativeOutput: (chunk: string) => void,
   modelName: string,
   apiKey: string | null,
+  jsonOutput: string | null,
+  outputMode: string,
 ) {
   const formData = new FormData();
   try {
@@ -74,6 +78,15 @@ export async function postImageAndPrompt(
             console.log("stream completed");
             set({ loading: false });
             hljs.highlightAll();
+            if (outputMode === "JSON") {
+              try {
+                const cleanJsonString = fullOutput.replace(/```json\n|\n```/g, "").trim();
+                const jsonOutput = JSON.parse(cleanJsonString);
+                set({ jsonOutput: JSON.stringify(jsonOutput, null, 2) });
+              } catch (error) {
+                console.error("Error parsing JSON: ", error);
+              }
+            }
             if (useIterativePrompt) {
               await postIterativePrompt(
                 prompt,

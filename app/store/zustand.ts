@@ -20,6 +20,8 @@ type State = {
   setGeneratedOutput: (chunk: string) => void;
   modelName: string;
   apiKey: string | null;
+  outputMode: string;
+  jsonOutput: string | null;
 };
 
 export const useStore = create<State>()(
@@ -40,6 +42,8 @@ export const useStore = create<State>()(
       iterativeOutput: null,
       modelName: "GPT",
       apiKey: null,
+      outputMode: "JSON",
+      jsonOutput: null,
       set: (by) => set((state) => ({ ...state, ...by })),
       setIterativeOutput: (chunk) =>
         set((state) => ({
@@ -62,6 +66,7 @@ export const useStore = create<State>()(
         prompt: state.prompt,
         iterativePrompt: state.iterativePrompt,
         apiKey: state.apiKey,
+        outputMode: state.outputMode,
       }),
     },
   ),

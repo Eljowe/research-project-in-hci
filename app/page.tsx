@@ -6,12 +6,14 @@ import CollapsibleContainer from "../components/CollapsibleContainer";
 import { useStore } from "./store/zustand";
 import { postImageAndPrompt } from "../services/promptService";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import RadioMenu from "@/components/RadioMenu";
+import ModelRadioMenu from "@/components/ModelRadioMenu";
 import TemperatureSlider from "@/components/TemperatureSlider";
 import TokenSlider from "@/components/TokenSlider";
 import CopyButton from "@/components/CopyButton";
 import ClearPromptButton from "@/components/ClearPromptButton";
 import InsertDefaultPromptButton from "@/components/InsertDefaultPromptButton";
+import JSONRadioMenu from "@/components/JSONRadioMenu";
+import { json } from "stream/consumers";
 
 //For prompting inspiration: https://github.com/abi/screenshot-to-code/blob/main/backend/prompts/screenshot_system_prompts.py
 
@@ -58,6 +60,9 @@ const DEFAULT_ITERATIVE_PROMPT = `In this second iteration, your primary goal re
 
 Your goal is substantial improvement, with a particular emphasis on capturing the more complex styling aspects and the possible elements that were missed on the first iteration of the original mobile UI. While adhering to the guidelines provided in the first prompt, consider this iteration as an opportunity to refine and enhance not only accuracy but also the replication of intricate design details. Respond only with the generated HTML code and use entirely unique class names for the styles to prevent interference with the first iteration.`;
 
+const JSON_PROMPT = `i will provide you a screenshot of mobile user interface. I want you to list all the visible user interface components and elements to a list of json objects, add each element as its own node, so that no object has child elements. Use the format: Label: [type], Text: [text], BoundingBox from (x1, y1) to (x2, y2), where the boundingBox includes the coordinates of the elements top-left corner as the first coordinate pair and bottom-right corner the second coordinate pair, replace the variables with the approximation of their position on the screen, it does not matter if you are unable to give the exact precise values.
+Return only the list, no explanations, no additional information, nothing.`;
+
 //Code refactoring needed
 export default function Home() {
   const {
@@ -79,6 +84,8 @@ export default function Home() {
     setIterativeOutput,
     modelName,
     apiKey,
+    outputMode,
+    jsonOutput,
   } = useStore((state) => state);
 
   useEffect(() => {
@@ -118,7 +125,7 @@ export default function Home() {
     if (file) {
       await postImageAndPrompt(
         file,
-        prompt ? prompt : DEFAULT_PROMPT,
+        prompt ? prompt : outputMode === "JSON" ? JSON_PROMPT : DEFAULT_PROMPT,
         iterativePrompt ? iterativePrompt : DEFAULT_ITERATIVE_PROMPT,
         set,
         setGeneratedOutput,
@@ -128,6 +135,8 @@ export default function Home() {
         setIterativeOutput,
         modelName,
         apiKey,
+        jsonOutput,
+        outputMode,
       );
     }
   };
@@ -168,12 +177,13 @@ export default function Home() {
             />
             {developerMode && (
               <div className="flex flex-col space-y-4 pt-4">
-                <RadioMenu />
+                <ModelRadioMenu />
                 {!modelOnlineStatus && modelName == "Local" ? (
                   <h1 className="text-red-500">Local model is offline</h1>
                 ) : null}
                 <TokenSlider />
                 <TemperatureSlider />
+                <JSONRadioMenu />
                 <label className="inline-flex w-max cursor-pointer items-center">
                   <span className="me-3 text-sm font-medium text-neutral-900">Use iterative prompting</span>
                   <input
@@ -191,13 +201,18 @@ export default function Home() {
                     value={prompt ? prompt : ""}
                     onChange={(e) => set({ prompt: e.target.value })}
                     rows={10}
-                    placeholder={`${DEFAULT_PROMPT}`}
+                    placeholder={`${outputMode === "JSON" ? JSON_PROMPT : DEFAULT_PROMPT}`}
                     id="prompt"
                     className="w-[100%] rounded-md border border-neutral-300 bg-inherit p-2"
                   />
                   <div className="flex divide-x-2">
-                    <InsertDefaultPromptButton PROMPT={DEFAULT_PROMPT} promptType={"first"} />
-                    <CopyButton textToCopy={prompt ? prompt : DEFAULT_PROMPT} />
+                    <InsertDefaultPromptButton
+                      PROMPT={`${outputMode === "JSON" ? JSON_PROMPT : DEFAULT_PROMPT}`}
+                      promptType={"first"}
+                    />
+                    <CopyButton
+                      textToCopy={`${prompt ? prompt : outputMode === "JSON" ? JSON_PROMPT : DEFAULT_PROMPT}`}
+                    />
                     <ClearPromptButton promptType={"first"} />
                   </div>
                 </div>
@@ -264,34 +279,45 @@ export default function Home() {
             />
           ) : null}
         </div>
-        <div className="flex w-full flex-wrap justify-center gap-2">
-          <div
-            className={`ml-0 flex ${useIterativePrompt ? "w-full md:w-[calc(50%-4px)]" : "w-full"} min-w-[350px] flex-col rounded-md border p-4`}
-          >
-            <p>Generated layout:</p>
-            {generatedOutput && (
-              <div
-                className="mx-auto mt-4 w-[400px] rounded-md border-2 border-gray-600"
-                dangerouslySetInnerHTML={{ __html: purify.sanitize(generatedOutput) }}
-              />
-            )}
-          </div>
-          {useIterativePrompt && (
-            <div className="flex w-full min-w-[350px] flex-col rounded-md border p-4 md:w-[calc(50%-4px)]">
-              <p>Iterative layout:</p>
-              {iterativeOutput && (
+        {outputMode === "HTML" && (
+          <div className="flex w-full flex-wrap justify-center gap-2">
+            <div
+              className={`ml-0 flex ${useIterativePrompt ? "w-full md:w-[calc(50%-4px)]" : "w-full"} min-w-[350px] flex-col rounded-md border p-4`}
+            >
+              <p>Generated layout:</p>
+              {generatedOutput && (
                 <div
                   className="mx-auto mt-4 w-[400px] rounded-md border-2 border-gray-600"
-                  dangerouslySetInnerHTML={{ __html: purify.sanitize(iterativeOutput) }}
+                  dangerouslySetInnerHTML={{ __html: purify.sanitize(generatedOutput) }}
                 />
               )}
             </div>
-          )}
-        </div>
+            {useIterativePrompt && (
+              <div className="flex w-full min-w-[350px] flex-col rounded-md border p-4 md:w-[calc(50%-4px)]">
+                <p>Iterative layout:</p>
+                {iterativeOutput && (
+                  <div
+                    className="mx-auto mt-4 w-[400px] rounded-md border-2 border-gray-600"
+                    dangerouslySetInnerHTML={{ __html: purify.sanitize(iterativeOutput) }}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        )}
+        {jsonOutput && (
+          <CollapsibleContainer title="JSON output">
+            <pre>
+              <code id="codeblock" className="hljs JSON">
+                {purify.sanitize(jsonOutput)}
+              </code>
+            </pre>
+          </CollapsibleContainer>
+        )}
         {generatedOutput && (
           <CollapsibleContainer title="Generated text output">
             <pre>
-              <code id="codeblock" className={`hljs html`}>
+              <code id="codeblock" className={outputMode === "HTML" ? `hljs html` : `hljs JSON`}>
                 {purify.sanitize(generatedOutput)}
               </code>
             </pre>
