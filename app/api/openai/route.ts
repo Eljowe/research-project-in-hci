@@ -25,7 +25,7 @@ export const POST = async (req: Request, res: Response) => {
   if (formData.get("apiKey") != "null") {
     API_KEY = formData.get("apiKey")?.toString();
   }
-  if (API_KEY === null) {
+  if (!API_KEY) {
     return new Response(JSON.stringify({ error: "No API Key found" }), { status: 400 });
   }
 
@@ -34,6 +34,7 @@ export const POST = async (req: Request, res: Response) => {
     base URL: ${BASE_URL}
     Max Tokens: ${MAX_TOKENS}
     Temperature: ${TEMPERATURE}
+    API Key: ${API_KEY}
   `);
 
   const openai = new OpenAI({ apiKey: API_KEY, baseURL: BASE_URL });
