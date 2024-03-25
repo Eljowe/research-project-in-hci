@@ -299,7 +299,7 @@ export default function Home() {
         {outputMode === "HTML" && (
           <div className="flex w-full flex-wrap justify-center gap-2">
             <div
-              className={`ml-0 flex ${useIterativePrompt ? "w-full md:w-[calc(50%-4px)]" : "w-full"} min-w-[350px] flex-col rounded-md border bg-white p-4 shadow-xl`}
+              className={`ml-0 flex ${useIterativePrompt ? "w-full md:w-[calc(50%-4px)]" : "w-full"} min-w-[350px] flex-col rounded-md bg-white p-4 shadow-xl`}
             >
               <p>Generated layout:</p>
               {generatedOutput && (
