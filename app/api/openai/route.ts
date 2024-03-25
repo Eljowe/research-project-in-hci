@@ -25,7 +25,6 @@ export const POST = async (req: Request, res: Response) => {
   if (formData.get("apiKey") != "null") {
     API_KEY = formData.get("apiKey")?.toString();
   }
-  console.log("HEI_API: " + API_KEY);
   if (API_KEY === null) {
     return new Response(JSON.stringify({ error: "No API Key found" }), { status: 400 });
   }

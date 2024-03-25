@@ -153,8 +153,8 @@ export default function Home() {
   };
 
   return (
-    <main className="justify-star flex min-h-screen w-[100%] flex-col bg-[#fffafa] px-4 py-2 text-black">
-      <div className="flex h-min w-[100%] flex-col items-center justify-center">
+    <main className="flex min-h-screen w-[100%] flex-col justify-start bg-gradient-to-tr from-cyan-50 to-violet-50 px-4 py-2 text-black">
+      <div className="flex h-min w-[100%] flex-col items-center justify-center space-y-4">
         <div className="flex w-full flex-row justify-between px-4 py-2">
           <SettingsModal />
           <label className="inline-flex cursor-pointer items-center">
@@ -168,7 +168,7 @@ export default function Home() {
             <div className="peer relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
           </label>
         </div>
-        <div className="m-2 flex h-min w-[100%] min-w-[350px] flex-col space-y-2 rounded-md border border-blue-500 p-4">
+        <div className="m-2 flex h-min w-[100%] min-w-[350px] flex-col space-y-2 rounded-md bg-white p-4 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-2">
             <label className="mb-2 inline-block text-neutral-900 ">Input image</label>
             <input
@@ -270,7 +270,7 @@ export default function Home() {
             </div>
           )}
         </div>
-        <div className="m-2 flex h-min w-[100%] min-w-[350px] flex-col space-y-2 rounded-md border p-4">
+        <div className="m-2 flex h-min w-[100%] min-w-[350px] flex-col space-y-2 rounded-md bg-white p-4 shadow-xl">
           <p>Selected image:</p>
           {temporaryImageFile ? (
             <Image
@@ -283,7 +283,7 @@ export default function Home() {
           ) : null}
         </div>
         {outputMode === "JSON" && (
-          <div className="flex w-full min-w-[350px] flex-col rounded-md border p-4">
+          <div className="flex w-full min-w-[350px] flex-col rounded-md bg-white p-4 shadow-xl">
             <p>Generated bounding box image:</p>
             {boundingBoxImageFile ? (
               <Image
@@ -299,7 +299,7 @@ export default function Home() {
         {outputMode === "HTML" && (
           <div className="flex w-full flex-wrap justify-center gap-2">
             <div
-              className={`ml-0 flex ${useIterativePrompt ? "w-full md:w-[calc(50%-4px)]" : "w-full"} min-w-[350px] flex-col rounded-md border p-4`}
+              className={`ml-0 flex ${useIterativePrompt ? "w-full md:w-[calc(50%-4px)]" : "w-full"} min-w-[350px] flex-col rounded-md border bg-white p-4 shadow-xl`}
             >
               <p>Generated layout:</p>
               {generatedOutput && (

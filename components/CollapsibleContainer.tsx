@@ -22,7 +22,7 @@ const CollapsibleContainer: React.FC<CollapsibleContainerProps> = ({ title, chil
   }, [isOpen]);
 
   return (
-    <div className="my-2 flex w-[100%] min-w-[350px] flex-col rounded-md border p-4">
+    <div className="my-2 flex w-[100%] min-w-[350px] flex-col rounded-md bg-white p-4 shadow-xl">
       <div className="flex cursor-pointer items-center justify-between" onClick={toggleContainer}>
         <h2 className="text-xl font-semibold">{title}</h2>
         <svg
