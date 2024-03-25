@@ -310,7 +310,7 @@ export default function Home() {
               )}
             </div>
             {useIterativePrompt && (
-              <div className="flex w-full min-w-[350px] flex-col rounded-md border p-4 md:w-[calc(50%-4px)]">
+              <div className="flex w-full min-w-[350px] flex-col rounded-md bg-white p-4 shadow-xl md:w-[calc(50%-4px)]">
                 <p>Iterative layout:</p>
                 {iterativeOutput && (
                   <div
