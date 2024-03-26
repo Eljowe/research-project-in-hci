@@ -1,5 +1,6 @@
 import hljs from "highlight.js";
 import "highlight.js/styles/vs2015.css";
+import { toast } from "react-toastify";
 
 type State = {
   file: File | null;
@@ -67,6 +68,7 @@ export async function postImageAndPrompt(
     }
     if (!response!.ok) {
       set({ errorAlert: true, loading: false });
+      toast.error("Error occured while querying the API.");
       return;
     } else {
       const reader = response!.body!.getReader();
@@ -84,6 +86,7 @@ export async function postImageAndPrompt(
                 const jsonOutput = JSON.parse(cleanJsonString);
                 set({ jsonOutput: JSON.stringify(jsonOutput, null, 2) });
               } catch (error) {
+                toast.error("Error parsing JSON: " + error);
                 console.error("Error parsing JSON: ", error);
               }
             }
