@@ -20,7 +20,7 @@ export const POST = async (req: Request, res: Response) => {
   const MAX_TOKENS = formData.get("maxTokens") || 1000;
   const TEMPERATURE = formData.get("temperature") || 0.001;
   var API_KEY = process.env.OPENAI_API_KEY;
-  const MODEL = "gpt-4-vision-preview";
+  const MODEL = "gpt-4-turbo";
   const BASE_URL = "https://api.openai.com/v1";
   if (formData.get("apiKey") != "null") {
     API_KEY = formData.get("apiKey")?.toString();
