@@ -11,7 +11,7 @@ export async function GET(request: Request) {
 
 const PROJECT_ID = "hci-research-project";
 const REGION = "europe-west3";
-const visionModel = "gemini-1.0-pro-vision";
+const visionModel = "gemini-1.5-pro-preview-0409";
 
 export const POST = async (req: Request, res: Response) => {
   // This is the main route to handle the image upload and prompt submission
