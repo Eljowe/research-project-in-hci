@@ -61,7 +61,10 @@ const DEFAULT_ITERATIVE_PROMPT = `In this second iteration, your primary goal re
 
 Your goal is substantial improvement, with a particular emphasis on capturing the more complex styling aspects and the possible elements that were missed on the first iteration of the original mobile UI. While adhering to the guidelines provided in the first prompt, consider this iteration as an opportunity to refine and enhance not only accuracy but also the replication of intricate design details. Respond only with the generated HTML code and use entirely unique class names for the styles to prevent interference with the first iteration.`;
 
-const JSON_PROMPT = `i will provide you a screenshot of mobile user interface. I want you to list all the visible user interface components and elements to a list of json objects, add each element as its own node, so that no object has child elements. Use the format: Label: [type], Text: [text], BoundingBox from (x1, y1) to (x2, y2), where the boundingBox includes the coordinates of the elements top-left corner as the first coordinate pair and bottom-right corner the second coordinate pair, replace the variables with the approximation of their position on the screen, it does not matter if you are unable to give the exact precise values.
+const JSON_PROMPT = `i will provide you a screenshot of mobile user interface. 
+I want you to list all the visible user interface components and elements to a list of json objects, add each element as its own node, so that no object has child elements. 
+Use the format: Label: [type], Text: [text], Description: [short text], BoundingBox from (x1, y1) to (x2, y2), where the boundingBox includes the coordinates of the elements top-left corner as the first coordinate pair and bottom-right corner the second coordinate pair, replace the variables with the approximation of their position on the screen, it does not matter if you are unable to give the exact precise values.
+The description should be a short text that describes the element and its purpose.
 Return only the list, no explanations, no additional information, nothing.`;
 
 //Code refactoring needed

@@ -11,7 +11,7 @@ const TokenSlider = () => {
       <input
         type="range"
         min="1"
-        max="2048"
+        max="4096"
         step="1"
         value={maxTokens}
         onChange={(e) => set({ maxTokens: Number(e.target.value) })}
